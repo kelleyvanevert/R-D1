@@ -1,14 +1,17 @@
 package studie.callbydoodle;
 
 import java.util.ArrayList;
+
+import android.net.Uri;
+import android.os.SystemClock;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.gesture.*;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -38,11 +41,6 @@ public class DoodleActivity extends Activity
     	private final float COLOR_SATURATION = 1;
     	private final float COLOR_VALUE = (float)0.7;
     	
-    	// Building up a gesture
-    	//private ArrayList<Path>
-    	private ArrayList<GesturePoint> gesturepoints;
-    	private Gesture gesture;
-    	
 		public DoodleView(Context context)
 		{
 			super(context);
@@ -55,7 +53,9 @@ public class DoodleActivity extends Activity
 			paint.setStrokeWidth(10);
 			rotateColor();
 			
-			gesture = new Gesture();
+			taps = new long[2];
+			taps[0] = SystemClock.uptimeMillis() - 1000;
+			taps[1] = SystemClock.uptimeMillis() - 1000;
 		}
 		
 		@Override
@@ -72,57 +72,98 @@ public class DoodleActivity extends Activity
 			canvas.drawBitmap(bitmap, 0, 0, null);
 		}
 		
+		private long[] taps;
+		
+		private MotionEvent lastEvent;
+		private long lastTime;
+		
+		private MotionEvent currentEvent;
+		private long currentTime;
+		
 		@Override
 		public boolean onTouchEvent(MotionEvent event)
 		{
-			float x = event.getX();
-			float y = event.getY();
+			currentEvent = event;
+			currentTime = SystemClock.uptimeMillis();
 			
 			if (event.getActionMasked() == MotionEvent.ACTION_DOWN)
 			{
-				// start new gesture stroke
-				//gesturepoints = new ArrayList<GesturePoint>();
-				//gesturepoints.add(new GesturePoint(x, y, System.currentTimeMillis()));
-				
-	            for (int n = 0; n < event.getHistorySize(); n++)
-	            {
-	            	drawCircle(event.getHistoricalX(n), event.getHistoricalY(n),
-	            			   event.getHistoricalPressure(n));
-	            }
-				invalidate();
+				taps[0] = taps[1];
+				taps[1] = currentTime;
 			}
 			else if (event.getActionMasked() == MotionEvent.ACTION_MOVE)
 			{
-				// add gesture point
-				//gesturepoints.add(new GesturePoint(x, y, System.currentTimeMillis()));
-				
-				// draw
-				drawCircle(x, y, event.getPressure());
+				drawCircles();
 				invalidate();
 			}
 			else if (event.getActionMasked() == MotionEvent.ACTION_UP)
 			{
-				// make gesture stroke, add to gesture
-				//GestureStroke stroke = new GestureStroke(gesturepoints);
-				//gesture.addStroke(stroke);
-
-				drawCircle(x, y, event.getPressure());
-				invalidate();
+				System.out.println("-- Taps: "+(taps[1] - taps[0])+", "+(currentTime - taps[1]));
+				
+				// taps[0] <-- touch down event
+				// taps[1] <-- touch down event nummer 2
+				// currentTime <-- huidige tijd
+				// als (currentTime - taps[0]) < 350 dan is er dus minder dan 350 ms verstreken
+				// sinds de eerste van twee touch down events en het huidige touch up event:
+				// er is dus sprake van een dubbel-klik
+				if (currentTime - taps[0] < 350)
+				{
+					// Hier zouden we bijvoorbeeld kunnen gaan bellen..
+					//Intent call = new Intent(Intent.ACTION_CALL, Uri.parse("tel:0317XXXXXX"));
+					//getContext().startActivity(call);
+					
+					// ..of het canvas leeg maken..
+					clearCanvas();
+					invalidate();
+				}
 			}
+			
+			lastEvent = currentEvent;
+			lastTime = currentTime;
 			
 			return true;
 		}
 		
-		private void drawCircle(float x, float y, float pressure)
+		private void clearCanvas()
 		{
-			// draw circle
-			canvas.drawCircle(x, y, pressure*80, paint);
+			System.out.println("-- Clear canvas");
+			canvas.drawColor(Color.BLACK);
+		}
+		
+		private void drawCircles()
+		{
+			// TODO:
+			// Mooie lijnen maken i.p.v. alleen maar cirkeltjes voor de gebruiker
+			// Oplossing: laat V de vector van het oude punt naar het nieuwe punt zijn
+			//  (opgeslagen d.w.v. lastEvent en currentEvent); dan moeten we gewoon
+			//  op deze vector V zoveel cirkels tekenen als nodig is om de gebruiker
+			//  de impressie te geven dat het om een lijn gaat.
+		    // Waarom niet een lijn trekken met canvas.drawLine oid?
+			//  Omdat we dan niet subtiel de kleur en dikte kunnen veranderen zoals nu gebeurt
+			//  (..of wel? misschien wel, zouden we misschien moeten proberen..)
 			
+			// draw circle
+            for (int n = 0; n < currentEvent.getHistorySize(); n++)
+            {
+            	canvas.drawCircle(
+            			currentEvent.getHistoricalX(n),
+            			currentEvent.getHistoricalY(n),
+            			80 * currentEvent.getHistoricalPressure(n),
+            			paint
+            	);
+            }
+			
+			// rotate color
 			rotateColor();
 		}
 		
 		private void rotateColor()
 		{
+			// TODO
+			// De kleur roteren aan de hand van afgelegde afstand i.p.v. tijd, want
+			// de gebruiker kan best heel lang op een plek zijn vinger laten staan, dit
+			// zou geen invloed moeten hebben.
+			
 			hue_rotate = (hue_rotate + HUE_ROTATE_STEP) % 360;
 			paint.setColor(Color.HSVToColor(new float[] {hue_rotate, COLOR_SATURATION, COLOR_VALUE}));
 		}
