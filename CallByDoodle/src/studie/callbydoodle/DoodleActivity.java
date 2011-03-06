@@ -68,6 +68,7 @@ public class DoodleActivity extends Activity
 			super.onSizeChanged(w, h, oldw, oldh);
 			bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.RGB_565);
 			canvas = new Canvas(bitmap);
+			canvas.drawColor(Color.WHITE);
 		}
 		
 		@Override
@@ -93,12 +94,16 @@ public class DoodleActivity extends Activity
 			if (event.getActionMasked() == MotionEvent.ACTION_DOWN)
 			{
 				taps[0] = taps[1];
-				taps[1] = currentTime;
+				taps[1] = currentTime;			
+				drawCanvas();
+				drawGesture();
+				invalidate();
 			}
 			else if (event.getActionMasked() == MotionEvent.ACTION_MOVE)
 			{
 				makeCircles();				
 				drawCanvas();
+				drawGesture();
 				invalidate();
 			}
 			else if (event.getActionMasked() == MotionEvent.ACTION_UP)
@@ -121,6 +126,10 @@ public class DoodleActivity extends Activity
 					clearCanvas();
 					invalidate();
 				}
+				
+				canvas.drawColor(Color.WHITE);
+				drawGesture();
+				invalidate();
 			}
 			
 			lastEvent = currentEvent;
@@ -132,7 +141,7 @@ public class DoodleActivity extends Activity
 		private void clearCanvas()
 		{
 			System.out.println("-- Clear canvas");
-			canvas.drawColor(Color.BLACK);
+			canvas.drawColor(Color.WHITE);
 		}
 		
 		private void makeCircles()
@@ -151,7 +160,10 @@ public class DoodleActivity extends Activity
 			// rotate background color
 			hue_rotate = (hue_rotate + HUE_ROTATE_STEP) % 360;
 			canvas.drawColor(Color.HSVToColor(new float[] {hue_rotate, COLOR_SATURATION, COLOR_VALUE}));
-			
+		}
+		
+		private void drawGesture()
+		{
 			for (Circle c : circles)
 			{
 				canvas.drawCircle(c.getX(), c.getY(), c.getRadius(), paint);
