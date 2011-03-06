@@ -41,6 +41,8 @@ public class DoodleActivity extends Activity
     	private final float COLOR_SATURATION = 1;
     	private final float COLOR_VALUE = (float)0.7;
     	
+    	private ArrayList<Circle> circles;
+    	
 		public DoodleView(Context context)
 		{
 			super(context);
@@ -51,11 +53,13 @@ public class DoodleActivity extends Activity
 			paint = new Paint();
 			paint.setStyle(Paint.Style.FILL);
 			paint.setStrokeWidth(10);
-			rotateColor();
+			paint.setColor(Color.BLACK);
 			
 			taps = new long[2];
 			taps[0] = SystemClock.uptimeMillis() - 1000;
 			taps[1] = SystemClock.uptimeMillis() - 1000;
+			
+			circles = new ArrayList<Circle>();
 		}
 		
 		@Override
@@ -93,7 +97,8 @@ public class DoodleActivity extends Activity
 			}
 			else if (event.getActionMasked() == MotionEvent.ACTION_MOVE)
 			{
-				drawCircles();
+				makeCircles();				
+				drawCanvas();
 				invalidate();
 			}
 			else if (event.getActionMasked() == MotionEvent.ACTION_UP)
@@ -130,42 +135,27 @@ public class DoodleActivity extends Activity
 			canvas.drawColor(Color.BLACK);
 		}
 		
-		private void drawCircles()
+		private void makeCircles()
 		{
-			// TODO:
-			// Mooie lijnen maken i.p.v. alleen maar cirkeltjes voor de gebruiker
-			// Oplossing: laat V de vector van het oude punt naar het nieuwe punt zijn
-			//  (opgeslagen d.w.v. lastEvent en currentEvent); dan moeten we gewoon
-			//  op deze vector V zoveel cirkels tekenen als nodig is om de gebruiker
-			//  de impressie te geven dat het om een lijn gaat.
-		    // Waarom niet een lijn trekken met canvas.drawLine oid?
-			//  Omdat we dan niet subtiel de kleur en dikte kunnen veranderen zoals nu gebeurt
-			//  (..of wel? misschien wel, zouden we misschien moeten proberen..)
-			
 			// draw circle
             for (int n = 0; n < currentEvent.getHistorySize(); n++)
             {
-            	canvas.drawCircle(
-            			currentEvent.getHistoricalX(n),
+            	circles.add(new Circle(currentEvent.getHistoricalX(n),
             			currentEvent.getHistoricalY(n),
-            			80 * currentEvent.getHistoricalPressure(n),
-            			paint
-            	);
+            			80 * currentEvent.getHistoricalPressure(n)));
             }
-			
-			// rotate color
-			rotateColor();
 		}
 		
-		private void rotateColor()
+		private void drawCanvas()
 		{
-			// TODO
-			// De kleur roteren aan de hand van afgelegde afstand i.p.v. tijd, want
-			// de gebruiker kan best heel lang op een plek zijn vinger laten staan, dit
-			// zou geen invloed moeten hebben.
-			
+			// rotate background color
 			hue_rotate = (hue_rotate + HUE_ROTATE_STEP) % 360;
-			paint.setColor(Color.HSVToColor(new float[] {hue_rotate, COLOR_SATURATION, COLOR_VALUE}));
+			canvas.drawColor(Color.HSVToColor(new float[] {hue_rotate, COLOR_SATURATION, COLOR_VALUE}));
+			
+			for (Circle c : circles)
+			{
+				canvas.drawCircle(c.getX(), c.getY(), c.getRadius(), paint);
+			}
 		}
     }
 }
