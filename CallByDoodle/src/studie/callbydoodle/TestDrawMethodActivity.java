@@ -41,6 +41,15 @@ public class TestDrawMethodActivity extends Activity
     	private final float COLOR_SATURATION = 1;
     	private final float COLOR_VALUE = (float)0.7;
     	
+    	// You have to move at least this amount for the view to respond to a line-draw
+    	private final int MOVE_THRESHOLD = 4;
+    	
+    	// Motionevent.getPressure() times this constant to get the drawing radius
+    	private final int PRESSURE_TO_RADIUS = 60;
+    	
+    	// Max amount of time between first tap down and second tap up in ms to register double click
+    	private final int DOUBLECLICK_TIME_THRESHOLD = 300;
+    	
 		public DoodleView(Context context)
 		{
 			super(context);
@@ -158,11 +167,11 @@ public class TestDrawMethodActivity extends Activity
 				
 				// Here comes the crux..
 				Vec move = currentVec.subtract(lastVec);
-				if (move.getLength() > 4)
+				if (move.getLength() > MOVE_THRESHOLD)
 				{
 					moved = true;
 					
-					Vec radiusVec = move.setLength(80 * currentEvent.getPressure());
+					Vec radiusVec = move.setLength(PRESSURE_TO_RADIUS * currentEvent.getPressure());
 					Vec pointLeft = currentVec.add(radiusVec.rotateLeft());
 					Vec pointRight = currentVec.add(radiusVec.rotateRight());
 					//left.lineTo(pointLeft.getX(), pointLeft.getY());
@@ -190,7 +199,7 @@ public class TestDrawMethodActivity extends Activity
 				
 				if (!moved)
 				{
-					if (currentTime - taps[0] < 350)
+					if (currentTime - taps[0] < DOUBLECLICK_TIME_THRESHOLD)
 					{
 						// clear canvas
 						drawPaths.clear();
