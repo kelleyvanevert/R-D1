@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="add_gesture_title">Doodle Toevoegen</string>
     <string name="hello">Hello World, DoodleActivity!</string>
     <string name="app_name">CallByDoodle</string>
+<string name="options_empty_canvas">Leeg Canvas</string>
+<string name="options_gesture_data">Converteer en Leer</string>
 </resources>

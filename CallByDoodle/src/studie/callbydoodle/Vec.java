@@ -2,6 +2,7 @@ package studie.callbydoodle;
 
 // Very simple 2D vector class
 // Immutable
+// Joepie, we leren wat nuttigs bij Bart Jacobs!
 public class Vec
 {
 	private float x, y;
@@ -56,4 +57,5 @@ public class Vec
 	{
 		return y;
 	}
+	
 }
