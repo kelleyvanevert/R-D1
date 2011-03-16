@@ -71,8 +71,8 @@ public class DoodleView extends View
 	
 	//Size a point created by 'clicking' the screen
 	private static final int TOUCH_DOT_SIZE = 15; 
-	//Minimum distance between successive touchpoints to register as different strokes
-	private static final int NEW_STROKE_MINDIST = 4;
+
+
 	
 	private ArrayList<DPoint> drawPaths;
 	private ArrayList<Circle> drawCircles;
@@ -169,7 +169,7 @@ public class DoodleView extends View
 		super(context);
 		setFocusable(true);
 		
-		//hue_rotate = 0;
+		hue_rotate = 0;
 		
 		paint = new Paint();
 		paint.setStyle(Paint.Style.FILL);
@@ -271,11 +271,11 @@ public class DoodleView extends View
 			
 			//If the location of the current MotionEvent is far enough away from the last
 			//known touch location, its a new stroke
-			if (move.getLength() > NEW_STROKE_MINDIST)
+			if (move.getLength() > MOVE_THRESHOLD)
 			{
 				moved = true;
 				
-				Vec radiusVec = move.setLength(80 * currentEvent.getPressure());
+				Vec radiusVec = move.setLength(PRESSURE_TO_RADIUS * currentEvent.getPressure());
 				Vec pointLeft = currentVec.add(radiusVec.rotateLeft());
 				Vec pointRight = currentVec.add(radiusVec.rotateRight());
 				
@@ -305,7 +305,7 @@ public class DoodleView extends View
 			
 			if (!moved)
 			{
-				if (currentTime - taps[0] < 350)
+				if (currentTime - taps[0] < DOUBLECLICK_TIME_THRESHOLD)
 				{
 					clearCanvas();
 				}
@@ -355,7 +355,7 @@ public class DoodleView extends View
 		for (DPoint dp : drawPaths)
 		{	
 			//Check if this point is the start of a new stroke
-			if(lastPoint == null || (lastPoint.getEndPos().subtract(dp.getStartPos())).getLength() > NEW_STROKE_MINDIST)
+			if(lastPoint == null || (lastPoint.getEndPos().subtract(dp.getStartPos())).getLength() > MOVE_THRESHOLD)
 			{
 				//Log.i("DBG","");
 				//New stroke, add previous one to Gesture
