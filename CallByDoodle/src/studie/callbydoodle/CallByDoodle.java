@@ -46,6 +46,14 @@ public class CallByDoodle extends Activity
         setContentView(ourView);
     }
     
+    
+    public void onResume()
+    {
+    	super.onResume();
+    	ourView.loadThemeSetting();
+    }
+    
+    
     public boolean onCreateOptionsMenu(Menu menu)
     {
     	

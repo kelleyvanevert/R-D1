@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 import android.os.SystemClock;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.gesture.Gesture;
 import android.gesture.GesturePoint;
 import android.gesture.GestureStroke;
@@ -40,7 +41,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 
-
 public class DoodleView extends View
 {
 	private Bitmap bitmap;
@@ -52,9 +52,9 @@ public class DoodleView extends View
 	Bitmap mBackground;
     	
 	//Themes will come later, but for now hardcode a choice
-	private final int THEME_BACKGROUND = 0;
-	private final int THEME_HUE_ROTATE = 1;
-	private final int CURRENT_THEME = 0;//THEME_HUE_ROTATE;
+	public static final String THEME_BACKGROUND = "Background";
+	public static final String THEME_HUE_ROTATE = "Colours";
+	private String CURRENT_THEME = THEME_HUE_ROTATE;
 	
 	//Using colour rotation for background
 	// Color rotation: current HUE in HSV
@@ -73,6 +73,8 @@ public class DoodleView extends View
 	// Max amount of time between first tap down and second tap up in ms to register double click
 	private final int DOUBLECLICK_TIME_THRESHOLD = 300;
 	
+	//Settings
+	private static final String PREFERENCE_FILE  = "DoodleSettings";
 	
 	
 	private long[] taps;
@@ -110,6 +112,7 @@ public class DoodleView extends View
 		private long timeStamp;
 		private Vec start, end;
 		private float pStart, pEnd;
+		
 		/**
 		 * Construct als path met een tijd
 		 */
@@ -203,12 +206,14 @@ public class DoodleView extends View
 		taps[0] = SystemClock.uptimeMillis() - 1000;
 		taps[1] = SystemClock.uptimeMillis() - 1000;
 		
-		//left = new Path();
-		//right = new Path();
 		drawPaths = new ArrayList<DPoint>();
 		drawCircles = new ArrayList<Circle>();
 
+		//Load theme setting
+		loadThemeSetting();
 	}
+	
+	
 	
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh)
@@ -222,29 +227,31 @@ public class DoodleView extends View
 		//Resize background bitmap too
 		mBackground = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.background), w, h, true);	
 	}
-	
+
 	@Override
 	protected void onDraw(Canvas canvas)
 	{
-		
 		drawBackground();
 		drawPaths();		
 		canvas.drawBitmap(bitmap, 0, 0, null);
 	}
 	
+	
+	
 	private void drawBackground()
-	{
-		switch(CURRENT_THEME)
+	{		
+		if(CURRENT_THEME.equals(THEME_HUE_ROTATE))
 		{
-			case THEME_HUE_ROTATE:
-				hue_rotate = (hue_rotate + HUE_ROTATE_STEP) % 360;
-				canvas.drawColor(Color.HSVToColor(new float[] {hue_rotate, HUE_COLOR_SATURATION, HUE_COLOR_VALUE}));				
-			break;
-			case THEME_BACKGROUND:
-				canvas.drawBitmap(mBackground, new Matrix(), null);
-			break;
-		}			
+			hue_rotate = (hue_rotate + HUE_ROTATE_STEP) % 360;
+			canvas.drawColor(Color.HSVToColor(new float[] {hue_rotate, HUE_COLOR_SATURATION, HUE_COLOR_VALUE}));				
+		}
+		if(CURRENT_THEME.equals(THEME_BACKGROUND))
+		{
+			canvas.drawBitmap(mBackground, new Matrix(), null);
+		}
 	}
+	
+	
 	
 	
 	private void drawPaths()
@@ -436,5 +443,28 @@ public class DoodleView extends View
 		return true;
 	}
 	
+	
+	
+	public void loadThemeSetting()
+	{
+		CURRENT_THEME = getSetting("theme",THEME_BACKGROUND);
+	}
+	
+	
+	
+    /**
+     * Get a user setting from memory
+     * 
+     * @param keyName		Setting to be retrieved
+     * @param defaultValue	If no value found
+     * @return				The requested setting or the defaultValue
+     */
+    private String getSetting(String keyName, String defaultValue)
+    {
+    	//We need to use the Context because it's a View and not an Activity..
+    	SharedPreferences prefs = getContext().getSharedPreferences(PREFERENCE_FILE,0);
+    	
+    	return prefs.getString(keyName, defaultValue);
+    }
 	
 }
