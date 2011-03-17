@@ -5,4 +5,7 @@
     <string name="app_name">CallByDoodle</string>
 <string name="options_empty_canvas">Leeg Canvas</string>
 <string name="options_gesture_data">Converteer en Leer</string>
+<string name="backgroundtheme">Background</string>
+<string name="colourstheme">Colours</string>
+<string name="themeOption">Theme:</string>
 </resources>

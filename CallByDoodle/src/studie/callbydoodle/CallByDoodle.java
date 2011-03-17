@@ -22,16 +22,17 @@
 package studie.callbydoodle;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
-import android.gesture.*
-;public class CallByDoodle extends Activity
+import android.gesture.*;
+
+public class CallByDoodle extends Activity
 {
 	DoodleView ourView;
-	
 	
 	GestureLibrary doodleLib;
 	Gesture doodleGesture;
@@ -52,6 +53,7 @@ import android.gesture.*
     	//menu.add(R.string.options_gesture_data); 
     	menu.add("Leeg Canvas");
     	menu.add("Converteer");
+    	menu.add("Settings");
     	return true;
     }
     
@@ -73,6 +75,13 @@ import android.gesture.*
     		ourView.setGesture(ourGes);
     	}
     	
+    	if(itemName.equals("Settings"))
+    	{
+    		Intent settingsIntent = new Intent();
+    		settingsIntent.setClassName("studie.callbydoodle","studie.callbydoodle.SettingsActivity");
+    		
+    		CallByDoodle.this.startActivity(settingsIntent);
+    	}
     	
     	return true;
     }
