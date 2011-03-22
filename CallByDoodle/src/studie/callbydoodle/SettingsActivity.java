@@ -8,13 +8,12 @@ import android.widget.TextView;
 import android.app.Activity;
 import android.content.SharedPreferences;
 
-public class SettingsActivity extends Activity{
-	
+public class SettingsActivity extends Activity
+{
 	private TextView debugMsg;
 	
-	//Settings
+	// Settings
 	private static final String PREFERENCE_FILE  = "DoodleSettings";
-	
 	
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -22,14 +21,19 @@ public class SettingsActivity extends Activity{
         super.onCreate(savedInstanceState);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         
-        //Use the settings layout as View for this activity
+        // Use the settings layout as View for this activity
         setContentView(R.layout.settings);
         
+        // Get the class of the theme to be used
+        Class theme;
+        try {
+        	theme = Class.forName(getSetting("theme", "studie.callbydoodle.LineTheme"));
+        } catch (Exception e) {
+        	theme = LineTheme.class;
+        }
         
-        //Load data on theme used
-        String themeSetting = getSetting("theme",DoodleView.THEME_BACKGROUND);
-        
-        //Check the appropriate radiobutton
+        /*
+        // Check the appropriate radiobutton
         if(themeSetting.equals(DoodleView.THEME_BACKGROUND))
         {
         	RadioButton button = (RadioButton) findViewById(R.id.background);
@@ -40,14 +44,13 @@ public class SettingsActivity extends Activity{
         	RadioButton button = (RadioButton) findViewById(R.id.colours);
         	button.toggle();
         }
-        
+        */
         
         //debugMsg = (TextView)findViewById(R.id.debugMsg);        
         //debugMsg.setText(themeSetting);
         
         //Fill the spinner with random data
-       
-    } 
+    }
     
     /**
      * Keep track of theme changes
@@ -56,19 +59,18 @@ public class SettingsActivity extends Activity{
      */
     public void onThemeChange(View radioButton)
     { 
-    	
     	if(radioButton.getId() == R.id.background)
     	{
-    		setSetting("theme",DoodleView.THEME_BACKGROUND);
+    		setSetting("theme", "studie.callbydoodle.LineTheme");
     		//debugMsg.setText("Background modus geselecteerd..");
     	}
-    	if(radioButton.getId() == R.id.colours)
+    	else if(radioButton.getId() == R.id.colours)
     	{
-    		setSetting("theme",DoodleView.THEME_HUE_ROTATE);
+    		setSetting("theme", "studie.callbydoodle.ColourTheme");
     		//debugMsg.setText("Colour modus geselecteerd..");
-    	}    	
+    	}
     }
-
+    
     /**
      * Get a user setting from memory
      * 
@@ -79,7 +81,6 @@ public class SettingsActivity extends Activity{
     public String getSetting(String keyName, String defaultValue)
     {
     	SharedPreferences prefs = getSharedPreferences(PREFERENCE_FILE,0);
-    	
     	return prefs.getString(keyName, defaultValue);
     }
     
@@ -95,6 +96,4 @@ public class SettingsActivity extends Activity{
        	prefs.putString(keyName, value);
        	prefs.commit();
     }
-    
-    
 }

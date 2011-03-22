@@ -50,7 +50,7 @@ public class CallByDoodle extends Activity
     public void onResume()
     {
     	super.onResume();
-    	ourView.loadThemeSetting();
+    	//ourView.loadThemeSetting();
     }
     
     
@@ -72,15 +72,15 @@ public class CallByDoodle extends Activity
     	//if(itemName.equals(R.string.options_empty_canvas))
     	if(itemName.equals("Leeg Canvas"))
     	{
-    		ourView.clearCanvas();
+    		ourView.startNewRecording();
     	}    	
     	
     	//if(itemName.equals(R.string.options_gesture_data))
     	if(itemName.equals("Converteer"))
     	{
-    		Gesture ourGes = ourView.getGesture();
+    		//Gesture ourGes = ourView.getGesture();
     		
-    		ourView.setGesture(ourGes);
+    		//ourView.setGesture(ourGes);
     	}
     	
     	if(itemName.equals("Settings"))

@@ -21,17 +21,29 @@
 
 package studie.callbydoodle;
 
-// Very simple 2D vector class
-// Immutable
-// Joepie, we leren wat nuttigs bij Bart Jacobs!
+/**
+ * Very small, simple and straightforward 2d vector class.
+ * The name should say enough ;)
+ * 
+ * By the way, I found out that floats really aren't that
+ *  necessary. Int's work great too, you can't see any difference
+ *  when you draw your doodles.. (at least I couldn't)
+ * Using int's helps me implement a nicer Doodle interface, check it for details..
+ */
 public class Vec
 {
-	private float x, y;
+	private int x, y;
 	
-	public Vec(float x, float y)
+	public Vec(int x, int y)
 	{
 		this.x = x;
 		this.y = y;
+	}
+	
+	public Vec(float x, float y)
+	{
+		this.x = (int)x;
+		this.y = (int)y;
 	}
 	
 	public Vec add(Vec other)
@@ -69,12 +81,20 @@ public class Vec
 		return new Vec(-y, x);
 	}
 	
-	public float getX()
+	public boolean equals(Object other)
+	{
+		if (other.getClass() != this.getClass())
+			return false;
+		
+		return (x == ((Vec)other).getX() && y == ((Vec)other).getY());
+	}
+	
+	public int getX()
 	{
 		return x;
 	}
 	
-	public float getY()
+	public int getY()
 	{
 		return y;
 	}
