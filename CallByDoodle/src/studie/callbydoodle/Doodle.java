@@ -1,5 +1,6 @@
 package studie.callbydoodle;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import android.gesture.Gesture;
@@ -48,6 +49,18 @@ public class Doodle
 	public ArrayList<DoodleSegment> getSegments()
 	{
 		return segments;
+	}
+	
+	public String serialize()
+	{
+		String segs = "";
+		for (DoodleSegment segment : segments) {
+			segs += "    " + segment.serialize() + "\n";
+		}
+		return
+			"Doodle {\n" +
+			     segs +
+			"}";
 	}
 	
 	/**

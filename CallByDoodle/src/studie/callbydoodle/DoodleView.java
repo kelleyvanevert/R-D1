@@ -20,12 +20,15 @@
 
 package studie.callbydoodle;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+
+import studie.callbydoodle.themes.ColourTheme;
 import android.os.SystemClock;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -72,6 +75,8 @@ public class DoodleView extends View
 	
 	// We're currently recording this doodle
 	private Doodle doodle;
+	// Whether the user is drawing at this moment
+	private boolean drawing = false;
 	
 	// Theme
 	private DoodleTheme theme;
@@ -129,6 +134,7 @@ public class DoodleView extends View
 			taps[0] = taps[1];
 			taps[1] = currentTime;
 			
+			drawing = true;
 			moved = false;
 		}
 		else if (event.getAction() == MotionEvent.ACTION_MOVE)
@@ -172,6 +178,8 @@ public class DoodleView extends View
 			
 			// Request redraw
 			invalidate();
+			
+			drawing = false;
 		}
 		
 		// Bookkeeping
@@ -190,5 +198,32 @@ public class DoodleView extends View
 		
 		// Request redraw
 		invalidate();		
+	}
+	
+	/**
+	 * Check whether the view has a doodle
+	 */
+	public boolean hasDoodle()
+	{
+		return doodle.getSegments().size() > 0;
+	}
+	
+	/**
+	 * Check whether the user has completed a doodle
+	 */
+	public boolean hasCompletedDoodle()
+	{
+		return hasDoodle() && !drawing;
+	}
+	
+	/**
+	 * Get the currently drawn doodle.
+	 * Beware! This could be a dummy doodle, first
+	 *  use hasDoodle() or hasCompletedDoodle to check
+	 *  whether the user has drawn and/or completed a doodle.
+	 */
+	public Doodle getDoodle()
+	{
+		return doodle;
 	}
 }

@@ -1,5 +1,7 @@
 package studie.callbydoodle;
 
+import java.io.Serializable;
+
 /**
  * A segment within a Doodle object.
  * Roelf implemented the DPoint class, this is a refinement.
@@ -12,8 +14,10 @@ package studie.callbydoodle;
  * 
  * IMMUTABLE
  */
-public class DoodleSegment
+public class DoodleSegment implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
 	private Vec vecStart, vecEnd;
 	private long timeStart, timeEnd;
 	private float pressureStart, pressureEnd;
@@ -59,5 +63,14 @@ public class DoodleSegment
 	public float getPressureEnd()
 	{
 		return pressureEnd;
+	}
+	
+	public String serialize()
+	{
+		return "Segment{ "+
+		       vecStart.toString()+" -> "+vecEnd.toString()+", "+
+		       timeStart+" -> "+timeEnd+", "+
+		       pressureStart+" -> "+pressureEnd+
+		       " }";
 	}
 }

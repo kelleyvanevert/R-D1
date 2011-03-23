@@ -3,15 +3,11 @@ package studie.callbydoodle;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
-import android.widget.RadioButton;
-import android.widget.TextView;
 import android.app.Activity;
 import android.content.SharedPreferences;
 
 public class SettingsActivity extends Activity
 {
-	private TextView debugMsg;
-	
 	// Settings
 	private static final String PREFERENCE_FILE  = "DoodleSettings";
 	
@@ -24,6 +20,7 @@ public class SettingsActivity extends Activity
         // Use the settings layout as View for this activity
         setContentView(R.layout.settings);
         
+        /*
         // Get the class of the theme to be used
         Class theme;
         try {
@@ -31,6 +28,7 @@ public class SettingsActivity extends Activity
         } catch (Exception e) {
         	theme = LineTheme.class;
         }
+        */
         
         /*
         // Check the appropriate radiobutton
