@@ -20,9 +20,6 @@
 
 package studie.callbydoodle;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-
 import studie.callbydoodle.themes.ColourTheme;
 import android.os.SystemClock;
 import android.content.Context;
