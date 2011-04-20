@@ -21,9 +21,13 @@
 
 package studie.callbydoodle;
 
+import java.io.File;
+import java.io.FileOutputStream;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
@@ -34,16 +38,26 @@ public class DoodleActivity extends Activity
 	
 	private DoodleLibrary library;
 	
+	// Temporary
+	private int i = 0;
+	
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         
         // Create a new doodle library
-        // In the future, we will get our doodle library from some storage,
-        //  then save it again when we make new doodles or if we choose
-        //  to record doodle variations...
-        library = new DoodleLibrary();
+        // For now, I'm just read/writing from the SD card.
+        // Future: internal storage, and import/export options for SD card storage.
+		if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+			String d = Environment.getExternalStorageDirectory().getAbsolutePath();
+			File doodlePath = new File(d + File.separator + "Doodles");
+			if (!doodlePath.exists()) doodlePath.mkdir();
+			library = new DoodleLibrary(doodlePath);
+		} else {
+			System.out.println("Could not read doodle/contact info from SD card.");
+			library = new DoodleLibrary();
+		}
         
         ourView = new DoodleView(this);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -63,8 +77,7 @@ public class DoodleActivity extends Activity
     	//menu.add(R.string.options_empty_canvas);
     	//menu.add(R.string.options_gesture_data); 
     	menu.add("Leeg Canvas");
-    	menu.add("Converteer");
-    	menu.add("Save");
+    	menu.add("Save Contact");
     	return true;
     }
     
@@ -79,11 +92,28 @@ public class DoodleActivity extends Activity
     	}    	
     	
     	//if(itemName.equals(R.string.options_gesture_data))
-    	if(itemName.equals("Save"))
+    	if(itemName.equals("Save Contact"))
     	{
     		if (ourView.hasCompletedDoodle()) {
     			// Choose contact, then save to library
-    			System.out.println(ourView.getDoodle().serialize());
+    			library.add("heart-" + (i++), ourView.getDoodle());
+    			
+    			/*
+    			String state = Environment.getExternalStorageState();
+    			if (Environment.MEDIA_MOUNTED.equals(state)) {
+    				String d = Environment.getExternalStorageDirectory().getAbsolutePath();
+    				File doodlePath = new File(d + File.separator + "Doodles");
+    				if (!doodlePath.exists()) doodlePath.mkdir();
+    				File doodleFile = new File(doodlePath + File.separator + "doodle");
+    				try {
+    					FileOutputStream f = new FileOutputStream(doodleFile);
+    					f.write(ourView.getDoodle().serialize().getBytes());
+    				} catch (Exception e) {
+    					System.out.println("Could not save doodle: file write error!");
+    				}
+    			} else {
+    				System.out.println("Could not save doodle: storage mount error!");
+    			}*/
     		}
     	}
     	
