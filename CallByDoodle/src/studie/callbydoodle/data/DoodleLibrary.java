@@ -1,4 +1,4 @@
-package studie.callbydoodle;
+package studie.callbydoodle.data;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -7,7 +7,10 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.StreamCorruptedException;
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.Hashtable;
+
+import android.gesture.GestureStore;
 import android.net.Uri;
 
 public class DoodleLibrary
@@ -60,5 +63,20 @@ public class DoodleLibrary
 				System.out.println("Doodle library write to file error");
 			}
 		}
+	}
+	
+	public Doodle get(String lookupKey)
+	{
+		return doodles.get(lookupKey);
+	}
+	
+	public GestureStore getGestureStore()
+	{
+		GestureStore s = new GestureStore();
+		for (Enumeration<String> keys = doodles.keys(); keys.hasMoreElements() ;) {
+			String key = keys.nextElement();
+			s.addGesture(key, doodles.get(key).getGesture());
+		}
+		return s;
 	}
 }

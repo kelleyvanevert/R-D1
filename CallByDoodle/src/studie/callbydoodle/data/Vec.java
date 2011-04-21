@@ -19,7 +19,7 @@
  ============================================================================*/
 
 
-package studie.callbydoodle;
+package studie.callbydoodle.data;
 
 /**
  * Very small, simple and straightforward 2d vector class.

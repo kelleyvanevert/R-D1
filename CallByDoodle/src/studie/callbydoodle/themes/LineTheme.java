@@ -1,8 +1,8 @@
 package studie.callbydoodle.themes;
 
-import studie.callbydoodle.Doodle;
-import studie.callbydoodle.DoodleSegment;
 import studie.callbydoodle.DoodleTheme;
+import studie.callbydoodle.data.Doodle;
+import studie.callbydoodle.data.DoodleSegment;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;

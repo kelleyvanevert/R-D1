@@ -1,4 +1,4 @@
-package studie.callbydoodle;
+package studie.callbydoodle.data;
 
 import java.io.Serializable;
 

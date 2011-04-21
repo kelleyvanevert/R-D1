@@ -20,6 +20,9 @@
 
 package studie.callbydoodle;
 
+import studie.callbydoodle.data.Doodle;
+import studie.callbydoodle.data.DoodleSegment;
+import studie.callbydoodle.data.Vec;
 import studie.callbydoodle.themes.ColourTheme;
 import android.os.SystemClock;
 import android.content.Context;
@@ -214,13 +217,32 @@ public class DoodleView extends View
 	}
 	
 	/**
+	 * Check whether the user is drawing
+	 */
+	public boolean isDrawing()
+	{
+		return drawing;
+	}
+	
+	/**
 	 * Get the currently drawn doodle.
 	 * Beware! This could be a dummy doodle, first
-	 *  use hasDoodle() or hasCompletedDoodle to check
+	 *  use hasDoodle() or hasCompletedDoodle() to check
 	 *  whether the user has drawn and/or completed a doodle.
 	 */
 	public Doodle getDoodle()
 	{
 		return doodle;
+	}
+	
+	/**
+	 * Sets the doodle to be shown
+	 * Beware! This will only work when !isDrawing()
+	 * Beware! You might be removing the user's precious doodle!
+	 */
+	public void setDoodle(Doodle d)
+	{
+		doodle = d;
+		invalidate();
 	}
 }

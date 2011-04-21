@@ -23,14 +23,21 @@ package studie.callbydoodle;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+
+import studie.callbydoodle.data.Doodle;
+import studie.callbydoodle.data.DoodleLibrary;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.gesture.GestureStore;
+import android.gesture.Prediction;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+import android.widget.Toast;
 
 public class DoodleActivity extends Activity
 {
@@ -76,7 +83,7 @@ public class DoodleActivity extends Activity
     {
     	//menu.add(R.string.options_empty_canvas);
     	//menu.add(R.string.options_gesture_data); 
-    	menu.add("Leeg Canvas");
+    	menu.add("Compare to Prev");
     	menu.add("Save Contact");
     	return true;
     }
@@ -86,10 +93,32 @@ public class DoodleActivity extends Activity
     	String itemName = item.getTitle().toString();
     	
     	//if(itemName.equals(R.string.options_empty_canvas))
-    	if(itemName.equals("Leeg Canvas"))
+    	if(itemName.equals("Compare to Prev"))
     	{
-    		ourView.startNewRecording();
-    	}    	
+    		if (ourView.hasCompletedDoodle()) {
+	    		Doodle current = ourView.getDoodle();
+	    		GestureStore store = library.getGestureStore();
+	    		ArrayList<Prediction> predictions = store.recognize(current.getGesture());
+	    		for (Prediction p : predictions) {
+	    			System.out.println("Prediction: "+p.name+"@"+p.score);
+	    		}
+	    		if (predictions.size() > 0 && predictions.get(0).score > 1) {
+	    			Prediction pred = predictions.get(0);
+	    			Toast.makeText(this, "Best: "+pred.name+"@"+pred.score, Toast.LENGTH_SHORT);
+	    			System.out.println("Best: "+pred.name+"@"+pred.score);
+	    			ourView.setDoodle(library.get(pred.name));
+	    		} else {
+	    			Toast.makeText(this, "NONE", Toast.LENGTH_SHORT);
+	    			System.out.println("NONE");
+	    		}
+	    		
+	    		/*
+	    		Intent settingsIntent = new Intent();
+	    		settingsIntent.setClassName("studie.callbydoodle","studie.callbydoodle.TestRecognitionActivity");
+	    		DoodleActivity.this.startActivity(settingsIntent);
+	    		*/
+    		}
+    	}
     	
     	//if(itemName.equals(R.string.options_gesture_data))
     	if(itemName.equals("Save Contact"))
@@ -115,14 +144,6 @@ public class DoodleActivity extends Activity
     				System.out.println("Could not save doodle: storage mount error!");
     			}*/
     		}
-    	}
-    	
-    	if(itemName.equals("Settings"))
-    	{
-    		Intent settingsIntent = new Intent();
-    		settingsIntent.setClassName("studie.callbydoodle","studie.callbydoodle.SettingsActivity");
-    		
-    		DoodleActivity.this.startActivity(settingsIntent);
     	}
     	
     	return true;

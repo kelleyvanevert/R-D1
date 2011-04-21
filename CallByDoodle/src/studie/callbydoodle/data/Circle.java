@@ -19,7 +19,7 @@
  ============================================================================*/
 
 
-package studie.callbydoodle;
+package studie.callbydoodle.data;
 
 public class Circle
 {
