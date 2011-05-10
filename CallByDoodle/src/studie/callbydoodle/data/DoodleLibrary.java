@@ -1,17 +1,12 @@
 package studie.callbydoodle.data;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.StreamCorruptedException;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Scanner;
+import java.util.regex.Pattern;
 
 import android.gesture.GestureStore;
-import android.net.Uri;
 
 public class DoodleLibrary
 {
@@ -21,28 +16,11 @@ public class DoodleLibrary
 	private Dictionary<String, Doodle> doodles;
 	
 	/**
-	 * Writing to strage
-	 */
-	private File doodleDir;
-	private boolean writeToStorage = false;
-	
-	/**
 	 * Creates a new, empty, doodle library
 	 */
 	public DoodleLibrary()
 	{
 		doodles = new Hashtable<String, Doodle>();
-		writeToStorage = false;
-	}
-	
-	/**
-	 * Creates a doodles library that tries to fetch all it's info from the given directory.
-	 */
-	public DoodleLibrary(File doodleDir)
-	{
-		this();
-		this.doodleDir = doodleDir;
-		writeToStorage = true;
 	}
 	
 	public boolean contactHasDoodle(String lookupKey)
@@ -53,21 +31,16 @@ public class DoodleLibrary
 	public void add(String lookupKey, Doodle doodle)
 	{
 		doodles.put(lookupKey, doodle);
-		// Temporary
-		if (writeToStorage) {
-			File doodleFile = new File(doodleDir.getAbsolutePath() + File.separator + lookupKey);
-			try {
-				FileOutputStream out = new FileOutputStream(doodleFile);
-				out.write(doodle.serialize().getBytes());
-			} catch (IOException e) {
-				System.out.println("Doodle library write to file error");
-			}
-		}
 	}
 	
 	public Doodle get(String lookupKey)
 	{
 		return doodles.get(lookupKey);
+	}
+	
+	public Dictionary<String, Doodle> getDoodles()
+	{
+		return doodles;
 	}
 	
 	public GestureStore getGestureStore()
@@ -78,5 +51,49 @@ public class DoodleLibrary
 			s.addGesture(key, doodles.get(key).getGesture());
 		}
 		return s;
+	}
+
+	public static DoodleLibrary parseDoodleLibrary(String storeText) throws Exception
+	{
+		DoodleLibrary lib = new DoodleLibrary();
+		
+		Scanner s = new Scanner(storeText + "\nlastline");
+		String line;
+		String contactkey = null;
+		StringBuffer doodleBuff = null;
+		while (s.hasNextLine()) {
+			line = s.nextLine() + " ";
+			if (line.charAt(0) == ' ' && doodleBuff != null) {
+				// another segment
+				doodleBuff.append(line + "\n"); 
+			} else {
+				if (contactkey != null && doodleBuff != null) {
+					// First save previous doodle
+					try {
+						lib.add(contactkey, Doodle.parseDoodle(doodleBuff.toString()));
+					} catch (Exception e) {
+						// Error parsing -- forget it
+					}
+				}
+				contactkey = line.trim();
+				doodleBuff = new StringBuffer();
+			}
+		}
+		
+		return lib;
+	}
+	
+	public String serialize()
+	{
+		StringBuffer buf = new StringBuffer();
+		
+		Enumeration<String> n = doodles.keys();
+		while (n.hasMoreElements()) {
+			String contactkey = n.nextElement();
+			Doodle doodle = (Doodle)doodles.get(contactkey);
+			buf.append(contactkey + "\n" + doodle.serialize() + "\n");
+		}
+		
+		return buf.toString();
 	}
 }

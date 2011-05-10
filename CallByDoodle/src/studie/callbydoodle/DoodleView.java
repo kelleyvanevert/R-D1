@@ -24,6 +24,7 @@ import studie.callbydoodle.data.Doodle;
 import studie.callbydoodle.data.DoodleSegment;
 import studie.callbydoodle.data.Vec;
 import studie.callbydoodle.themes.ColourTheme;
+import studie.callbydoodle.themes.DoodleTheme;
 import android.os.SystemClock;
 import android.content.Context;
 import android.graphics.Bitmap;

@@ -1,4 +1,4 @@
-package studie.callbydoodle;
+package studie.callbydoodle.themes;
 
 import studie.callbydoodle.data.Doodle;
 import android.graphics.Canvas;

@@ -1,6 +1,5 @@
 package studie.callbydoodle.themes;
 
-import studie.callbydoodle.DoodleTheme;
 import studie.callbydoodle.data.Doodle;
 import studie.callbydoodle.data.DoodleSegment;
 import studie.callbydoodle.data.Vec;

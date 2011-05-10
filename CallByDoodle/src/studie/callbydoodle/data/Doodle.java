@@ -2,6 +2,7 @@ package studie.callbydoodle.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import android.gesture.Gesture;
 import android.gesture.GestureLibrary;
@@ -53,16 +54,36 @@ public class Doodle
 		return segments;
 	}
 	
+	public static Doodle parseDoodle(String str) throws Exception
+	{
+		Doodle doodle = new Doodle();
+		
+		Scanner s = new Scanner(str);
+		String line;
+		DoodleSegment seg;
+		while (s.hasNextLine()) {
+			line = s.nextLine();
+			try {
+				seg = DoodleSegment.parseDoodleSegment(line);
+				doodle.addDoodleSegment(seg);
+			} catch (Exception e) {
+				// Oh well, try the next line..
+			}
+		}
+		
+		if (doodle.segments.isEmpty())
+			throw new Exception();
+		
+		return doodle;
+	}
+	
 	public String serialize()
 	{
-		String segs = "";
+		StringBuffer buf = new StringBuffer();
 		for (DoodleSegment segment : segments) {
-			segs += "    " + segment.serialize() + "\n";
+			buf.append("    " + segment.serialize() + "\n");
 		}
-		return
-			"Doodle {\n" +
-			     segs +
-			"}";
+		return buf.toString();
 	}
 	
 	/**

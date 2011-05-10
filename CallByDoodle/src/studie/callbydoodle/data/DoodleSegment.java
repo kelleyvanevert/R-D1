@@ -1,6 +1,7 @@
 package studie.callbydoodle.data;
 
-import java.io.Serializable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A segment within a Doodle object.
@@ -14,7 +15,7 @@ import java.io.Serializable;
  * 
  * IMMUTABLE
  */
-public class DoodleSegment implements Serializable
+public class DoodleSegment
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -65,12 +66,19 @@ public class DoodleSegment implements Serializable
 		return pressureEnd;
 	}
 	
+	public static DoodleSegment parseDoodleSegment(String line) throws Exception
+	{
+		line = line.replaceAll("\\s", "").replaceAll("->", ";");
+		String[] pieces = line.split(";");
+		return new DoodleSegment(Vec.parseVec(pieces[0]), Vec.parseVec(pieces[1]),
+				Long.parseLong(pieces[2]), Long.parseLong(pieces[3]),
+				Float.parseFloat(pieces[4]), Float.parseFloat(pieces[5]));
+	}
+	
 	public String serialize()
 	{
-		return "Segment{ "+
-		       vecStart.toString()+" -> "+vecEnd.toString()+", "+
-		       timeStart+" -> "+timeEnd+", "+
-		       pressureStart+" -> "+pressureEnd+
-		       " }";
+		return vecStart.toString()+" -> "+vecEnd.toString()+"; "+
+		       timeStart+" -> "+timeEnd+"; "+
+		       pressureStart+" -> "+pressureEnd;
 	}
 }

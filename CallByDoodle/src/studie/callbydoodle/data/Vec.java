@@ -99,6 +99,11 @@ public class Vec
 		return y;
 	}
 	
+	public static Vec parseVec(String str) throws Exception {
+		String[] s = str.replaceAll("[\\(\\)\\s]", "").split(",");
+		return new Vec(Integer.parseInt(s[0]), Integer.parseInt(s[1]));
+	}
+	
 	@Override
 	public String toString()
 	{

@@ -21,19 +21,19 @@
 
 package studie.callbydoodle;
 
-import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import studie.callbydoodle.data.Doodle;
 import studie.callbydoodle.data.DoodleLibrary;
 
 import android.app.Activity;
-import android.content.Intent;
+import android.content.Context;
 import android.gesture.GestureStore;
 import android.gesture.Prediction;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
@@ -43,26 +43,26 @@ public class DoodleActivity extends Activity
 {
 	DoodleView ourView;
 	
+	private final String DOODLE_STORE_FILE = "store.doodlelib";
 	private DoodleLibrary library;
-	
-	// Temporary
-	private int i = 0;
 	
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         
-        // Create a new doodle library
-        // For now, I'm just read/writing from the SD card.
-        // Future: internal storage, and import/export options for SD card storage.
-		if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-			String d = Environment.getExternalStorageDirectory().getAbsolutePath();
-			File doodlePath = new File(d + File.separator + "Doodles");
-			if (!doodlePath.exists()) doodlePath.mkdir();
-			library = new DoodleLibrary(doodlePath);
-		} else {
-			System.out.println("Could not read doodle/contact info from SD card.");
+        // Try to find existing doodle library storage file
+        FileInputStream fis = null;
+        try {
+			fis = openFileInput(DOODLE_STORE_FILE);
+			StringBuffer buf = new StringBuffer();
+			int ch;
+	        while ((ch = fis.read()) != -1)
+				buf.append((char)ch);
+	        fis.close();
+	        library = DoodleLibrary.parseDoodleLibrary(buf.toString());
+		} catch (Exception e) {
+			// Either not able to read from file, or not able to reconstruct doodle library.
 			library = new DoodleLibrary();
 		}
         
@@ -71,13 +71,25 @@ public class DoodleActivity extends Activity
         setContentView(ourView);
     }
     
-    
     public void onResume()
     {
     	super.onResume();
     	//ourView.loadThemeSetting();
     }
     
+    public void onDestroy()
+    {
+    	super.onDestroy();
+    	
+    	// Write back doodle library
+    	FileOutputStream fos;
+    	try {
+    		fos = openFileOutput(DOODLE_STORE_FILE, Context.MODE_PRIVATE);
+			fos.write(library.serialize().getBytes());
+	    	fos.close();
+		} catch (IOException e) {
+		}
+    }
     
     public boolean onCreateOptionsMenu(Menu menu)
     {
@@ -125,7 +137,7 @@ public class DoodleActivity extends Activity
     	{
     		if (ourView.hasCompletedDoodle()) {
     			// Choose contact, then save to library
-    			library.add("heart-" + (i++), ourView.getDoodle());
+    			library.add("heart-" + library.getDoodles().size(), ourView.getDoodle());
     			
     			/*
     			String state = Environment.getExternalStorageState();
