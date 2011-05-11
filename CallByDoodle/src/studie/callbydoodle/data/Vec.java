@@ -109,4 +109,9 @@ public class Vec
 	{
 		return "("+x+","+y+")";
 	}
+	
+	public Vec clone()
+	{
+		return new Vec(x, y);
+	}
 }

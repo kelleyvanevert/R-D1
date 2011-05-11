@@ -226,7 +226,7 @@ public class DoodleView extends View
 	}
 	
 	/**
-	 * Get the currently drawn doodle.
+	 * Get a clone of the currently drawn doodle.
 	 * Beware! This could be a dummy doodle, first
 	 *  use hasDoodle() or hasCompletedDoodle() to check
 	 *  whether the user has drawn and/or completed a doodle.

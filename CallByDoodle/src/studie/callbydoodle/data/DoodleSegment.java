@@ -81,4 +81,11 @@ public class DoodleSegment
 		       timeStart+" -> "+timeEnd+"; "+
 		       pressureStart+" -> "+pressureEnd;
 	}
+	
+	public DoodleSegment clone()
+	{
+		return new DoodleSegment(vecStart.clone(), vecEnd.clone(),
+				timeStart, timeEnd,
+				pressureStart, pressureEnd);
+	}
 }

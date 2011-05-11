@@ -86,6 +86,15 @@ public class Doodle
 		return buf.toString();
 	}
 	
+	public Doodle clone()
+	{
+		Doodle clone = new Doodle();
+		for (DoodleSegment segment : segments) {
+			clone.addDoodleSegment(segment.clone());
+		}
+		return clone;
+	}
+	
 	/**
 	 * Get the equivalent gesture.
 	 * 

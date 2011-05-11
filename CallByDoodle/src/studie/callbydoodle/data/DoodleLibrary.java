@@ -11,7 +11,7 @@ import android.gesture.GestureStore;
 public class DoodleLibrary
 {
 	/**
-	 * The string is a "contact lookup key".
+	 * The string contains the "contact lookup key".
 	 */
 	private Dictionary<String, Doodle> doodles;
 	
@@ -23,19 +23,19 @@ public class DoodleLibrary
 		doodles = new Hashtable<String, Doodle>();
 	}
 	
-	public boolean contactHasDoodle(String lookupKey)
+	public boolean contactHasDoodle(String contactID)
 	{
-		return (doodles.get(lookupKey) != null);
+		return (doodles.get(contactID) != null);
 	}
 	
-	public void add(String lookupKey, Doodle doodle)
+	public void add(String contactID, Doodle doodle)
 	{
-		doodles.put(lookupKey, doodle);
+		doodles.put(contactID, doodle);
 	}
 	
-	public Doodle get(String lookupKey)
+	public Doodle get(String contactID)
 	{
-		return doodles.get(lookupKey);
+		return doodles.get(contactID);
 	}
 	
 	public Dictionary<String, Doodle> getDoodles()
