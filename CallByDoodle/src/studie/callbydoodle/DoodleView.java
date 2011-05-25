@@ -30,6 +30,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -82,9 +83,9 @@ public class DoodleView extends View
 	// Theme
 	private DoodleTheme theme;
 	
-	public DoodleView(Context context)
+	public DoodleView(Context context, AttributeSet attrs)
 	{
-		super(context);
+		super(context, attrs);
 		setFocusable(true);
 		
 		taps = new long[2];

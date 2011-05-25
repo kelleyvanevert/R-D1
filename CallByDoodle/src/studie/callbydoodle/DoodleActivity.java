@@ -52,10 +52,15 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.widget.ViewAnimator;
 
 public class DoodleActivity extends Activity
 {
+	/**
+	 * Views to handle
+	 */
 	DoodleView ourView;
+	OmniBar omnibar;
 	
 	private final String DOODLE_STORE_FILE = "store.doodlelib";
 	private DoodleLibrary library;
@@ -86,10 +91,11 @@ public class DoodleActivity extends Activity
 			// Either not able to read from file, or not able to reconstruct doodle library.
 			library = new DoodleLibrary();
 		}
-        
-        ourView = new DoodleView(this);
+		
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(ourView);
+        setContentView(R.layout.main);
+        ourView = (DoodleView)findViewById(R.id.doodleview);
+        omnibar = (OmniBar)findViewById(R.id.omnibar);
     }
     
     public void onResume()
