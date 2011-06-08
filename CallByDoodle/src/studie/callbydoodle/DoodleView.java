@@ -31,6 +31,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -136,7 +137,6 @@ public class DoodleView extends View
 			taps[0] = taps[1];
 			taps[1] = currentTime;
 			
-			drawing = true;
 			moved = false;
 		}
 		else if (event.getAction() == MotionEvent.ACTION_MOVE)
@@ -149,6 +149,8 @@ public class DoodleView extends View
 			if (move.getLength() > MOVE_THRESHOLD)
 			{
 				moved = true;
+				drawing = true;
+				dispathDoodleViewEvent(DOODLE_VIEW_EVENT_START_DRAW_DOODLE);
 				
 				// Simply add segment to recording doodle
 				doodle.addDoodleSegment(
@@ -165,23 +167,18 @@ public class DoodleView extends View
 		}
 		else if (event.getAction() == MotionEvent.ACTION_UP)
 		{
-			if (!moved)
+			if (!moved && currentTime - taps[0] < DOUBLECLICK_TIME_THRESHOLD)
 			{
-				if (currentTime - taps[0] < DOUBLECLICK_TIME_THRESHOLD)
-				{
-					startNewRecording();
-				}
-				else
-				{
-					// Drawing a dot: how do we support this again?
-					// (small TODO)
-				}
+				startNewRecording();
 			}
-			
-			// Request redraw
-			invalidate();
-			
-			drawing = false;
+			else
+			{
+				// Request redraw
+				invalidate();
+				
+				drawing = false;
+				dispathDoodleViewEvent(DOODLE_VIEW_EVENT_COMPLETE_DOODLE);
+			}
 		}
 		
 		// Bookkeeping
@@ -199,7 +196,9 @@ public class DoodleView extends View
 		doodle = new Doodle();
 		
 		// Request redraw
-		invalidate();		
+		invalidate();
+		
+		dispathDoodleViewEvent(DOODLE_VIEW_EVENT_CLEAR_VIEW);
 	}
 	
 	/**
@@ -246,5 +245,29 @@ public class DoodleView extends View
 	{
 		doodle = d;
 		invalidate();
+	}
+	
+	public static interface DoodleViewListener {
+		public void onStartDrawDoodle();
+		public void onCompleteDoodle();
+		public void onClearView();
+	}
+	private DoodleViewListener listener;
+	private static final int DOODLE_VIEW_EVENT_START_DRAW_DOODLE = 0;
+	private static final int DOODLE_VIEW_EVENT_COMPLETE_DOODLE = 1;
+	private static final int DOODLE_VIEW_EVENT_CLEAR_VIEW = 2;
+	private void dispathDoodleViewEvent(int e) {
+		if (listener != null) {
+			if (e == DOODLE_VIEW_EVENT_START_DRAW_DOODLE) {
+				listener.onStartDrawDoodle();
+			} else if (e == DOODLE_VIEW_EVENT_COMPLETE_DOODLE) {
+				listener.onCompleteDoodle();
+			} else if (e == DOODLE_VIEW_EVENT_CLEAR_VIEW) {
+				listener.onClearView();
+			}
+		}
+	}
+	public void setDoodleViewListener(DoodleViewListener listener) {
+		this.listener = listener;
 	}
 }

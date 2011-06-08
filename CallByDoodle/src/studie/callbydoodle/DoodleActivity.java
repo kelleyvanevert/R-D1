@@ -29,7 +29,10 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import studie.callbydoodle.DoodleView.DoodleViewListener;
 import studie.callbydoodle.data.Doodle;
 import studie.callbydoodle.data.DoodleLibrary;
 
@@ -42,25 +45,30 @@ import android.database.Cursor;
 import android.gesture.GestureStore;
 import android.gesture.Prediction;
 import android.net.Uri;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.Contacts;
 import android.provider.ContactsContract;
 import android.provider.Contacts.People;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewAnimator;
 
-public class DoodleActivity extends Activity
+public class DoodleActivity extends Activity implements DoodleViewListener
 {
 	/**
 	 * Views to handle
 	 */
 	DoodleView ourView;
-	OmniBar omnibar;
+	TextView feedbackText;
+	Button callButton;
 	
 	private final String DOODLE_STORE_FILE = "store.doodlelib";
 	private DoodleLibrary library;
@@ -95,7 +103,11 @@ public class DoodleActivity extends Activity
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.main);
         ourView = (DoodleView)findViewById(R.id.doodleview);
-        omnibar = (OmniBar)findViewById(R.id.omnibar);
+        ourView.setDoodleViewListener(this);
+        feedbackText = (TextView)findViewById(R.id.feedbacktext);
+        callButton = (Button)findViewById(R.id.btn_call);
+        
+        feedbackText.setText("Draw to start...");
     }
     
     public void onResume()
@@ -239,4 +251,44 @@ public class DoodleActivity extends Activity
     		}
     	}
     }
+
+	@Override
+	public void onClearView() {
+		callButton.setVisibility(callButton.GONE);
+		feedbackText.setText("Draw to start...");
+	}
+
+	@Override
+	public void onCompleteDoodle() {
+		if (ourView.hasCompletedDoodle()) {
+    		Doodle current = ourView.getDoodle();
+    		GestureStore store = library.getGestureStore();
+    		ArrayList<Prediction> predictions = store.recognize(current.getGesture());
+    		for (Prediction p : predictions) {
+    			System.out.println("Prediction: "+p.name+"@"+p.score);
+    		}
+    		if (predictions.size() > 0 && predictions.get(0).score > 1) {
+    			Prediction pred = predictions.get(0);
+    			feedbackText.setText("Tom Janmaat");
+    			callButton.setVisibility(callButton.VISIBLE);
+    			//ourView.setDoodle(library.get(pred.name));
+    		} else {
+    			feedbackText.setText("Uh oh!");
+    		}
+    		
+    		/*
+    		Intent settingsIntent = new Intent();
+    		settingsIntent.setClassName("studie.callbydoodle","studie.callbydoodle.TestRecognitionActivity");
+    		DoodleActivity.this.startActivity(settingsIntent);
+    		*/
+		} else {
+			feedbackText.setText("Weird...");
+		}
+	}
+	
+	@Override
+	public void onStartDrawDoodle() {
+		callButton.setVisibility(callButton.GONE);
+		feedbackText.setText("Guessing...");
+	}
 }
