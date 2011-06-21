@@ -6,8 +6,9 @@
     >
     <LinearLayout android:orientation="horizontal"
                   android:layout_width="fill_parent"
-                  android:layout_height="wrap_content">
-        <TextView android:id="@+id/feedbacktext"
+                  android:layout_height="wrap_content"
+                  android:id="@+id/background">
+        <TextView android:id="@+id/toolbartext"
                   android:paddingTop="5sp"
                   android:paddingLeft="5sp"
                   android:paddingBottom="5sp"

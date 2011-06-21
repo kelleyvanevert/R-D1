@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/settingsCategory_displaySettings">
+        <ListPreference android:title="@string/themeSetting"
+                        android:summary="@string/themeSettingSummary"
+                        android:key="theme"
+                        android:defaultValue="ColourTheme"
+                        android:entries="@array/themes"
+                        android:entryValues="@array/themes_values" />
+    </PreferenceCategory>
+</PreferenceScreen>

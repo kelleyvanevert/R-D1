@@ -21,57 +21,39 @@
 
 package studie.callbydoodle;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import studie.callbydoodle.DoodleView.DoodleViewListener;
 import studie.callbydoodle.data.Doodle;
 import studie.callbydoodle.data.DoodleLibrary;
-
+import studie.callbydoodle.themes.DoodleTheme;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.gesture.GestureStore;
-import android.gesture.Prediction;
 import android.net.Uri;
-import android.opengl.Visibility;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.provider.Contacts;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
-import android.provider.Contacts.People;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.ViewAnimator;
 
-public class DoodleActivity extends Activity implements DoodleViewListener
+public class DoodleActivity extends Activity
+	implements DoodleViewListener, SharedPreferences.OnSharedPreferenceChangeListener
 {
 	/**
 	 * Views to handle
 	 */
-	DoodleView ourView;
-	TextView feedbackText;
+	DoodleView doodleView;
+	TextView toolbarText;
 	Button callButton;
-	
-	private final String DOODLE_STORE_FILE = "store.doodlelib";
-	private DoodleLibrary library;
+	LinearLayout background;
 	
 	/**
 	 * When the user wants to save a doodle, we'll be using
@@ -84,151 +66,117 @@ public class DoodleActivity extends Activity implements DoodleViewListener
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         
-        // Try to find existing doodle library storage file
-        FileInputStream fis = null;
-        try {
-			fis = openFileInput(DOODLE_STORE_FILE);
-			StringBuffer buf = new StringBuffer();
-			int ch;
-	        while ((ch = fis.read()) != -1)
-				buf.append((char)ch);
-	        fis.close();
-	        library = DoodleLibrary.parseDoodleLibrary(buf.toString());
-		} catch (Exception e) {
-			// Either not able to read from file, or not able to reconstruct doodle library.
-			library = new DoodleLibrary();
+        // Load the library asynchronously
+        // This means the UI will not be blocked, though of course
+        // one will have to wait for completion of library loading
+        // before any recognition can take place...
+        new DoodleLibraryLoader().execute();
+        
+        // Listen for any preference changes
+        // (Theme change..)
+        prefs.registerOnSharedPreferenceChangeListener(this);
+        
+        // Put the content, retrieve components,
+        // start listening for events and load theme
+        setContentView(R.layout.main);
+        doodleView = (DoodleView)findViewById(R.id.doodleview);
+        doodleView.setDoodleViewListener(this);
+        toolbarText = (TextView)findViewById(R.id.toolbartext);
+        callButton = (Button)findViewById(R.id.btn_call);
+        background = (LinearLayout)findViewById(R.id.background);
+        reloadTheme();
+        
+        // Initial state
+        state = STATE_WAITING;
+        toolbarText.setText(getString(R.string.toolbar_state_waiting));
+        
+        // Check whether this is the first time this app is being used.
+        // If so, give a brief description!
+        boolean firstTime = prefs.getBoolean("first_time", true);
+        if (firstTime)
+        {
+        	prefs.edit().putBoolean("first_time", true).commit();
+        	// TODO
+        	// startActivity(new Intent(this, IntroductionActivity.class));
+        }
+    }
+
+	/*
+	 * Asynchronous library loading!
+	 */
+	private final String DOODLE_STORE_FILE = "store.doodlelib";
+	private DoodleLibrary library;
+	
+    private class DoodleLibraryLoader extends AsyncTask<Void, Void, DoodleLibrary>
+    {
+    	@Override
+		protected DoodleLibrary doInBackground(Void... params)
+		{
+			// Try to find existing doodle library storage file
+	        FileInputStream fis = null;
+	        try {
+				fis = openFileInput(DOODLE_STORE_FILE);
+				StringBuffer buf = new StringBuffer();
+				int ch;
+		        while ((ch = fis.read()) != -1)
+					buf.append((char)ch);
+		        fis.close();
+		        return DoodleLibrary.parseDoodleLibrary(buf.toString());
+			} catch (Exception e) {
+				// Either not able to read from file, or not able to reconstruct doodle library.
+				return new DoodleLibrary();
+			}
 		}
 		
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.main);
-        ourView = (DoodleView)findViewById(R.id.doodleview);
-        ourView.setDoodleViewListener(this);
-        feedbackText = (TextView)findViewById(R.id.feedbacktext);
-        callButton = (Button)findViewById(R.id.btn_call);
-        
-        feedbackText.setText("Draw to start...");
-    }
-    
-    public void onResume()
-    {
-    	super.onResume();
-    	//ourView.loadThemeSetting();
-    }
-    
-    public void onDestroy()
-    {
-    	super.onDestroy();
-    	
-    	// Write back doodle library
-    	FileOutputStream fos;
-    	try {
-    		fos = openFileOutput(DOODLE_STORE_FILE, Context.MODE_PRIVATE);
-			fos.write(library.serialize().getBytes());
-	    	fos.close();
-		} catch (IOException e) {
+		@Override
+		protected void onPostExecute(DoodleLibrary result)
+		{
+			library = result;
+			System.out.println("Library LOADED");
+			
+			// See comment @ declaration of libraryLoadPendingDoodleRecognition
+			if (libraryLoadPendingDoodleRecognition != null) {
+				System.out.println("..continue recognition..");
+				if (currentRecognizer != null && !currentRecognizer.isCancelled()) {
+					currentRecognizer.cancel(true);
+				}
+				currentRecognizer = new Recognizer().execute(libraryLoadPendingDoodleRecognition);
+				libraryLoadPendingDoodleRecognition = null;
+			}
 		}
     }
     
     public boolean onCreateOptionsMenu(Menu menu)
     {
-    	//menu.add(R.string.options_empty_canvas);
-    	//menu.add(R.string.options_gesture_data); 
-    	menu.add("Compare to Prev");
-    	menu.add("Save Contact");
-    	menu.add("Dump to SD");
-    	return true;
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.doodle_activity_menu, menu);
+        return true;
     }
     
     public boolean onOptionsItemSelected(MenuItem item)
     {
-    	String itemName = item.getTitle().toString();
-    	
-    	//if(itemName.equals(R.string.options_empty_canvas))
-    	if(itemName.equals("Compare to Prev"))
+    	switch (item.getItemId())
     	{
-    		if (ourView.hasCompletedDoodle()) {
-	    		Doodle current = ourView.getDoodle();
-	    		GestureStore store = library.getGestureStore();
-	    		ArrayList<Prediction> predictions = store.recognize(current.getGesture());
-	    		for (Prediction p : predictions) {
-	    			System.out.println("Prediction: "+p.name+"@"+p.score);
-	    		}
-	    		if (predictions.size() > 0 && predictions.get(0).score > 1) {
-	    			Prediction pred = predictions.get(0);
-	    			Toast.makeText(this, "Best: "+pred.name+"@"+pred.score, Toast.LENGTH_SHORT);
-	    			System.out.println("Best: "+pred.name+"@"+pred.score);
-	    			ourView.setDoodle(library.get(pred.name));
-	    		} else {
-	    			Toast.makeText(this, "NONE", Toast.LENGTH_SHORT);
-	    			System.out.println("NONE");
-	    		}
-	    		
-	    		/*
-	    		Intent settingsIntent = new Intent();
-	    		settingsIntent.setClassName("studie.callbydoodle","studie.callbydoodle.TestRecognitionActivity");
-	    		DoodleActivity.this.startActivity(settingsIntent);
-	    		*/
-    		}
+    	case R.id.save_contact:
+    		tryPerformSaveContact();
+    		return true;
+    	case R.id.goto_settings:
+    		startActivity(new Intent(this, SettingsActivity.class));
+    		return true;
+    	default:
+    		return super.onOptionsItemSelected(item);
     	}
-    	
-    	//if(itemName.equals(R.string.options_gesture_data))
-    	if(itemName.equals("Save Contact"))
-    	{
-    		if (ourView.hasCompletedDoodle()) {
-    			/*
-    			AlertDialog.Builder alert = new AlertDialog.Builder(this);
-    			alert.setTitle("Name?");
-    			alert.setMessage("Which name?");
-    			final EditText input = new EditText(this);
-    			alert.setView(input);
-    			alert.setPositiveButton("Allright!", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						System.out.println("Allright! "+input.getText());
-		    			// Choose contact, then save to library
-		    			library.add(input.getText().toString(), ourView.getDoodle());
-					}
-				});
-    			alert.show();
-    			*/
-    			saveDoodle = ourView.getDoodle();
-    			startActivityForResult(new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI),
-    					PICK_CONTACT_FOR_DOODLE_SAVE_REQUEST);
-       		}
-    	}
-
-    	if(itemName.equals("Dump to SD"))
-    	{
-    		String ser = library.serialize();
-    		System.out.println("Dumping library serialization..");
-    		System.out.print(ser);
-			String state = Environment.getExternalStorageState();
-			if (Environment.MEDIA_MOUNTED.equals(state)) {
-				String d = Environment.getExternalStorageDirectory().getAbsolutePath();
-				File exportDir = new File(d + File.separator + "CallByDoodle");
-				if (!exportDir.exists())
-					exportDir.mkdir();
-				final Format formatter = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
-				File exportFile = new File(exportDir + File.separator + "export-"+formatter.format(new Date())+".doodlelib");
-				System.out.println("Trying to write to file [ "+exportFile.toURI()+" ]..");
-				try {
-					if (!exportFile.exists())
-						exportFile.createNewFile();
-					FileOutputStream f = new FileOutputStream(exportFile);
-					f.write(library.serialize().getBytes());
-					f.close();
-					System.out.println("Success!");
-				} catch (Exception e) {
-					System.out.println("Could not save doodle: file write error!");
-					e.printStackTrace();
-				}
-			} else {
-				System.out.println("Could not save doodle: storage mount error!");
-			}
-    	}
-    	
-    	return true;
+    }
+    
+    private void tryPerformSaveContact()
+    {
+		if (doodleView.hasCompletedDoodle()) {
+			startActivityForResult(new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI),
+					PICK_CONTACT_FOR_DOODLE_SAVE_REQUEST);
+   		}
     }
     
     @Override
@@ -251,44 +199,117 @@ public class DoodleActivity extends Activity implements DoodleViewListener
     		}
     	}
     }
-
+    
+    private static final int STATE_WAITING = 0;
+    private static final int STATE_DRAWING = 1;
+    private static final int STATE_THINKING = 2;
+    private static final int STATE_DONE = 3;
+    private int state = STATE_WAITING;
+    
+    // Workaround for a problem I don't really have an elegant solution for:
+    // Currently, I'm both loading the library (at the initial application start)
+    // and doing recognitions asynchronously, using AsyncTasks.
+    // How do I accomplish having the library load complete before doing any
+    // recognitions? I don't really know, and I do like the simple use of AsyncTasks,
+    // so I chose for the following hack:
+    // Seen as only one recognition will ever happen (or be requested) at the same time,
+    // and there is only one simple event involved ("library loaded!"), I just
+    // hard-code the .execute() for that one pending recognition in the
+    // .onPostExecute() of the library loading.
+    private Doodle libraryLoadPendingDoodleRecognition = null;
+    
+    private AsyncTask<Doodle, Void, String> currentRecognizer;
+	private class Recognizer extends AsyncTask<Doodle, Void, String>
+	{
+		@Override
+		protected String doInBackground(Doodle... params)
+		{
+			// Try to recognize the doodle.
+			// !! Don't forget to periodically check for isCancelled(), for efficiency..
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				return "Interrupt";
+			}
+			return "Kelley";
+		}
+		
+		protected void onPostExecute(String result)
+		{
+			if (state == STATE_THINKING)
+			{
+				//callButton.setVisibility(View.VISIBLE);
+				toolbarText.setText("Maybe " + result + "?");
+				state = STATE_DONE;
+			}
+		};
+	};
+	
 	@Override
 	public void onClearView() {
-		callButton.setVisibility(callButton.GONE);
-		feedbackText.setText("Draw to start...");
+		callButton.setVisibility(View.GONE);
+		if (currentRecognizer != null && !currentRecognizer.isCancelled()) {
+			currentRecognizer.cancel(true);
+		}
+		libraryLoadPendingDoodleRecognition = null;
+		state = STATE_WAITING;
+		toolbarText.setText("Draw to start...");
 	}
-
+	
 	@Override
 	public void onCompleteDoodle() {
-		if (ourView.hasCompletedDoodle()) {
-    		Doodle current = ourView.getDoodle();
-    		GestureStore store = library.getGestureStore();
-    		ArrayList<Prediction> predictions = store.recognize(current.getGesture());
-    		for (Prediction p : predictions) {
-    			System.out.println("Prediction: "+p.name+"@"+p.score);
-    		}
-    		if (predictions.size() > 0 && predictions.get(0).score > 1) {
-    			Prediction pred = predictions.get(0);
-    			feedbackText.setText("Tom Janmaat");
-    			callButton.setVisibility(callButton.VISIBLE);
-    			//ourView.setDoodle(library.get(pred.name));
-    		} else {
-    			feedbackText.setText("Uh oh!");
-    		}
-    		
-    		/*
-    		Intent settingsIntent = new Intent();
-    		settingsIntent.setClassName("studie.callbydoodle","studie.callbydoodle.TestRecognitionActivity");
-    		DoodleActivity.this.startActivity(settingsIntent);
-    		*/
-		} else {
-			feedbackText.setText("Weird...");
+		if (doodleView.hasCompletedDoodle()) {
+			state = STATE_THINKING;
+			if (currentRecognizer != null && !currentRecognizer.isCancelled()) {
+				currentRecognizer.cancel(true);
+			}
+			if (library == null) {
+				System.out.println("! Library not yet loaded! recognition must wait");
+				libraryLoadPendingDoodleRecognition = doodleView.getDoodle();
+			} else {
+				System.out.println("Recognise!");
+				currentRecognizer = new Recognizer().execute(doodleView.getDoodle());
+			}
 		}
 	}
 	
 	@Override
 	public void onStartDrawDoodle() {
-		callButton.setVisibility(callButton.GONE);
-		feedbackText.setText("Guessing...");
+		callButton.setVisibility(View.GONE);
+		if (currentRecognizer != null && !currentRecognizer.isCancelled()) {
+			currentRecognizer.cancel(true);
+		}
+		libraryLoadPendingDoodleRecognition = null;
+		state = STATE_DRAWING;
+		toolbarText.setText("Guessing...");
+	}
+	
+	/**
+	 * (Re)loads the current theme, as in the default shared preferences
+	 */
+	@SuppressWarnings("unchecked")
+	public void reloadTheme()
+	{
+        try {
+        	SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(this);
+        	Class<DoodleTheme> t = (Class<DoodleTheme>) Class.forName("studie.callbydoodle.themes." + p.getString("theme", "DefaultTheme"));
+        	DoodleTheme theme = t.newInstance();
+        	// Finally!
+        	doodleView.setTheme(theme);
+        	background.setBackgroundColor(theme.getToolbarBackgroundColor());
+        	toolbarText.setTextColor(theme.getToolbarTextColor());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Responds to changes in the default shared preferences
+	 */
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if (key.equals("theme")) {
+			reloadTheme();
+		}
 	}
 }

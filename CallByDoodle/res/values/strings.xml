@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="add_gesture_title">Doodle Toevoegen</string>
-    <string name="hello">Hello World, DoodleActivity!</string>
-    <string name="app_name">CallByDoodle</string>
-<string name="options_empty_canvas">Leeg Canvas</string>
-<string name="options_gesture_data">Converteer en Leer</string>
-<string name="backgroundtheme">Background</string>
-<string name="colourstheme">Colours</string>
-<string name="themeOption">Theme:</string>
+    <!-- General -->
+    <string name="app_name">Call by Doodle</string>
+    <string name="doodle_activity_name">Call by Doodle</string>
+    <string name="settings_activity_name">Settings</string>
+    <string name="introduction_activity_name">Hello!</string>
+    
+    <!-- Toolbar -->
+    <string name="toolbar_state_waiting">Draw to start...</string>
+    <string name="toolbar_state_guessing">Guessing...</string>
+    <string name="toolbar_state_done_unknown">New?</string>
+    
+    <!-- Settings -->
+    <string name="settingsCategory_displaySettings">Display settings</string>
+    <string name="themeSetting">Theme</string>
+	<string name="themeSettingSummary">The color and style of your doodles</string>
+	
+	<!-- Menu -->
+    <string name="menu_goto_settings">Settings</string>
+    <string name="menu_save_contact">Save</string>
+    <string name="menu_save_settings">Save</string>
 </resources>

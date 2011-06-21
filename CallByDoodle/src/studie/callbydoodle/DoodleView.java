@@ -23,15 +23,13 @@ package studie.callbydoodle;
 import studie.callbydoodle.data.Doodle;
 import studie.callbydoodle.data.DoodleSegment;
 import studie.callbydoodle.data.Vec;
-import studie.callbydoodle.themes.ColourTheme;
-import studie.callbydoodle.themes.DoodleTheme;
+import studie.callbydoodle.themes.*;
 import android.os.SystemClock;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -64,6 +62,7 @@ public class DoodleView extends View
 	private long[] taps;
 	
 	// Keep quick and easy accounts on details of last and current event.
+	@SuppressWarnings("unused")
 	private MotionEvent lastEvent;
 	private long lastTime;
 	private Vec lastVec;
@@ -97,8 +96,13 @@ public class DoodleView extends View
 		doodle = new Doodle();
 		
 		// Load theme setting
-		// TODO
-		theme = new ColourTheme();
+		theme = new DefaultTheme();
+	}
+	
+	public void setTheme(DoodleTheme t)
+	{
+		theme = t;
+		invalidate();
 	}
 	
 	@Override
@@ -233,7 +237,7 @@ public class DoodleView extends View
 	 */
 	public Doodle getDoodle()
 	{
-		return doodle;
+		return doodle.clone();
 	}
 	
 	/**

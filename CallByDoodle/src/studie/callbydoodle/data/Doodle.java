@@ -1,13 +1,10 @@
 package studie.callbydoodle.data;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 import android.gesture.Gesture;
-import android.gesture.GestureLibrary;
 import android.gesture.GesturePoint;
-import android.gesture.GestureStore;
 import android.gesture.GestureStroke;
 
 /**

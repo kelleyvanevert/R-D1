@@ -4,7 +4,6 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Scanner;
-import java.util.regex.Pattern;
 
 import android.gesture.GestureStore;
 

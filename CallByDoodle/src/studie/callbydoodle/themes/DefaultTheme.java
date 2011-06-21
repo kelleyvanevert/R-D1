@@ -8,36 +8,27 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 
-public class ColourTheme implements DoodleTheme
+public class DefaultTheme implements DoodleTheme
 {
-	private Paint paint;
+	public static Paint paint;
 	
-	// Using colour rotation for background
-	// Color rotation: current HUE in HSV
-	// HUE <= [0 .. 360)
-	private int hue_rotate;
-	private final int HUE_ROTATE_STEP = 3;
-	private final float HUE_COLOR_SATURATION = 1;
-	private final float HUE_COLOR_VALUE = (float)0.7;
-	
+	public static final int BACKGROUND_COLOR = Color.WHITE;
+	public static final int PAINT_COLOR = Color.BLACK;
 	// MotionEvent.getPressure() times this constant to get the drawing radius
-	private final int PRESSURE_TO_RADIUS = 60;
+	public static final int PRESSURE_TO_RADIUS = 60;
 	
-	public ColourTheme()
+	public DefaultTheme()
 	{
 		paint = new Paint();
 		paint.setStyle(Paint.Style.FILL_AND_STROKE);
 		paint.setStrokeWidth(10);
-		paint.setColor(Color.BLACK);
-		
-		hue_rotate = 0;
+		paint.setColor(PAINT_COLOR);		
 	}
 	
 	@Override
 	public void drawDoodle(Canvas canvas, Doodle doodle)
 	{
-		hue_rotate = (hue_rotate + HUE_ROTATE_STEP) % 360;
-		canvas.drawColor(Color.HSVToColor(new float[] {hue_rotate, HUE_COLOR_SATURATION, HUE_COLOR_VALUE}));
+		canvas.drawColor(BACKGROUND_COLOR);
 		for (DoodleSegment segment : doodle.getSegments())
 		{
 			Path p = new Path();
@@ -57,20 +48,16 @@ public class ColourTheme implements DoodleTheme
 			p.lineTo(vecEndLeft.getX(), vecEndLeft.getY());
 			
 			canvas.drawPath(p, paint);
-			/*
-			canvas.drawLine(segment.getVecStart().getX(), segment.getVecStart().getY(),
-					segment.getVecEnd().getX(), segment.getVecEnd().getY(), paint);
-					*/
 		}
 	}
 
 	@Override
 	public int getToolbarBackgroundColor() {
-		return Color.BLACK;
+		return Color.WHITE;
 	}
 
 	@Override
 	public int getToolbarTextColor() {
-		return Color.WHITE;
+		return Color.BLACK;
 	}
 }

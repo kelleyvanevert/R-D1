@@ -1,7 +1,5 @@
 package studie.callbydoodle.data;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A segment within a Doodle object.
