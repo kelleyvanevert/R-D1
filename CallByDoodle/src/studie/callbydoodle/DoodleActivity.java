@@ -22,11 +22,14 @@ package studie.callbydoodle;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Random;
 
 import studie.callbydoodle.DoodleView.DoodleViewListener;
 import studie.callbydoodle.data.Doodle;
 import studie.callbydoodle.data.DoodleLibrary;
+import studie.callbydoodle.data.DoodleLibraryEntry;
 import studie.callbydoodle.themes.DoodleTheme;
 import android.app.Activity;
 import android.content.Context;
@@ -106,7 +109,7 @@ public class DoodleActivity extends Activity
         	// startActivity(new Intent(this, IntroductionActivity.class));
         }
     }
-
+    
 	/*
 	 * Asynchronous library loading!
 	 */
@@ -119,15 +122,12 @@ public class DoodleActivity extends Activity
 		protected DoodleLibrary doInBackground(Void... params)
 		{
 			// Try to find existing doodle library storage file
-	        FileInputStream fis = null;
+	        ObjectInputStream is = null;
 	        try {
-				fis = openFileInput(DOODLE_STORE_FILE);
-				StringBuffer buf = new StringBuffer();
-				int ch;
-		        while ((ch = fis.read()) != -1)
-					buf.append((char)ch);
-		        fis.close();
-		        return DoodleLibrary.parseDoodleLibrary(buf.toString());
+				is = new ObjectInputStream(openFileInput(DOODLE_STORE_FILE));
+				DoodleLibrary library = (DoodleLibrary)is.readObject();
+				is.close();
+				return library;
 			} catch (Exception e) {
 				// Either not able to read from file, or not able to reconstruct doodle library.
 				return new DoodleLibrary();
@@ -149,11 +149,11 @@ public class DoodleActivity extends Activity
 		{
 			if (libraries.length > 0)
 			{
-		    	FileOutputStream fos;
+		    	ObjectOutputStream oos;
 		    	try {
-		    		fos = openFileOutput(DOODLE_STORE_FILE, Context.MODE_PRIVATE);
-					fos.write(libraries[0].serialize().getBytes());
-			    	fos.close();
+		    		oos = new ObjectOutputStream(openFileOutput(DOODLE_STORE_FILE, Context.MODE_PRIVATE));
+		    		oos.writeObject(library);
+			    	oos.close();
 				} catch (Exception e) {}
 			}
 			
@@ -208,7 +208,7 @@ public class DoodleActivity extends Activity
 				c.close();
     		}
     		if (lookupKey != null && displayName != null) {
-    			library.add(lookupKey + ", " + displayName, saveDoodle);
+    			library.add(new DoodleLibraryEntry(lookupKey, saveDoodle));
     			new LibrarySaver().execute(library);
     			doStateTransition(TRANSITION_NEW_CONTACT_ADDED);
     		}
@@ -229,6 +229,8 @@ public class DoodleActivity extends Activity
     	STATE_THINKING = 2,
     	STATE_DONE = 3;
     private int state = STATE_WAITING;
+    // When browsing, the 
+    private int browsePosition = -1;
     
     // Workaround for a problem I don't really have an elegant solution for:
     // Currently, I'm both loading the library (at the initial application start)
@@ -286,7 +288,7 @@ public class DoodleActivity extends Activity
 	
 	private void doStateTransition(int transition, Object arg)
 	{
-		boolean libraryEmpty = (library == null) ? true : library.empty();
+		boolean libraryEmpty = (library == null) || (library.size() == 0);
 		
 		if (transition == TRANSITION_INIT || transition == TRANSITION_CLEAR) {
 			if (currentRecognizer != null && !currentRecognizer.isCancelled()) {
