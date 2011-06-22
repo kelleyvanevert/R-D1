@@ -95,4 +95,9 @@ public class DoodleLibrary
 		
 		return buf.toString();
 	}
+	
+	public boolean empty()
+	{
+		return doodles.size() == 0;
+	}
 }

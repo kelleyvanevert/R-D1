@@ -12,6 +12,8 @@ public class DefaultTheme implements DoodleTheme
 {
 	public static Paint paint;
 	
+	public static final int TOOLBAR_BACKGROUND_COLOR = Color.LTGRAY;
+	public static final int TOOLBAR_TEXT_COLOR = Color.BLACK;
 	public static final int BACKGROUND_COLOR = Color.WHITE;
 	public static final int PAINT_COLOR = Color.BLACK;
 	// MotionEvent.getPressure() times this constant to get the drawing radius
@@ -53,11 +55,11 @@ public class DefaultTheme implements DoodleTheme
 
 	@Override
 	public int getToolbarBackgroundColor() {
-		return Color.WHITE;
+		return TOOLBAR_BACKGROUND_COLOR;
 	}
 
 	@Override
 	public int getToolbarTextColor() {
-		return Color.BLACK;
+		return TOOLBAR_TEXT_COLOR;
 	}
 }

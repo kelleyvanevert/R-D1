@@ -18,15 +18,18 @@
  * in the summer of 2011.
  ============================================================================*/
 
-
 package studie.callbydoodle;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Random;
+
 import studie.callbydoodle.DoodleView.DoodleViewListener;
 import studie.callbydoodle.data.Doodle;
 import studie.callbydoodle.data.DoodleLibrary;
 import studie.callbydoodle.themes.DoodleTheme;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -38,11 +41,9 @@ import android.provider.ContactsContract;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.RelativeLayout;
 
 public class DoodleActivity extends Activity
 	implements DoodleViewListener, SharedPreferences.OnSharedPreferenceChangeListener
@@ -51,9 +52,8 @@ public class DoodleActivity extends Activity
 	 * Views to handle
 	 */
 	DoodleView doodleView;
-	TextView toolbarText;
-	Button callButton;
-	LinearLayout background;
+	Button btnLeft, btnRight, btnResult;
+	RelativeLayout toolbarRelativeLayout;
 	
 	/**
 	 * When the user wants to save a doodle, we'll be using
@@ -84,14 +84,17 @@ public class DoodleActivity extends Activity
         setContentView(R.layout.main);
         doodleView = (DoodleView)findViewById(R.id.doodleview);
         doodleView.setDoodleViewListener(this);
-        toolbarText = (TextView)findViewById(R.id.toolbartext);
-        callButton = (Button)findViewById(R.id.btn_call);
-        background = (LinearLayout)findViewById(R.id.background);
+        btnLeft = (Button)findViewById(R.id.btn_left);
+        btnLeft.setFocusable(false);
+        btnRight = (Button)findViewById(R.id.btn_right);
+        btnRight.setFocusable(false);
+        btnResult = (Button)findViewById(R.id.toolbartext);
+        btnResult.setFocusable(false);
+        toolbarRelativeLayout = (RelativeLayout)findViewById(R.id.toolbar);
         reloadTheme();
         
-        // Initial state
-        state = STATE_WAITING;
-        toolbarText.setText(getString(R.string.toolbar_state_waiting));
+        // Initial state transition
+        doStateTransition(TRANSITION_INIT);
         
         // Check whether this is the first time this app is being used.
         // If so, give a brief description!
@@ -135,17 +138,26 @@ public class DoodleActivity extends Activity
 		protected void onPostExecute(DoodleLibrary result)
 		{
 			library = result;
-			System.out.println("Library LOADED");
-			
-			// See comment @ declaration of libraryLoadPendingDoodleRecognition
-			if (libraryLoadPendingDoodleRecognition != null) {
-				System.out.println("..continue recognition..");
-				if (currentRecognizer != null && !currentRecognizer.isCancelled()) {
-					currentRecognizer.cancel(true);
-				}
-				currentRecognizer = new Recognizer().execute(libraryLoadPendingDoodleRecognition);
-				libraryLoadPendingDoodleRecognition = null;
+			doStateTransition(TRANSITION_LIBRARY_LOADED);
+		}
+    }
+    
+    private class LibrarySaver extends AsyncTask<DoodleLibrary, Void, Void>
+    {
+		@Override
+		protected Void doInBackground(DoodleLibrary... libraries)
+		{
+			if (libraries.length > 0)
+			{
+		    	FileOutputStream fos;
+		    	try {
+		    		fos = openFileOutput(DOODLE_STORE_FILE, Context.MODE_PRIVATE);
+					fos.write(libraries[0].serialize().getBytes());
+			    	fos.close();
+				} catch (Exception e) {}
 			}
+			
+			return null;
 		}
     }
     
@@ -174,6 +186,7 @@ public class DoodleActivity extends Activity
     private void tryPerformSaveContact()
     {
 		if (doodleView.hasCompletedDoodle()) {
+			saveDoodle = doodleView.getDoodle();
 			startActivityForResult(new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI),
 					PICK_CONTACT_FOR_DOODLE_SAVE_REQUEST);
    		}
@@ -196,14 +209,25 @@ public class DoodleActivity extends Activity
     		}
     		if (lookupKey != null && displayName != null) {
     			library.add(lookupKey + ", " + displayName, saveDoodle);
+    			new LibrarySaver().execute(library);
+    			doStateTransition(TRANSITION_NEW_CONTACT_ADDED);
     		}
     	}
     }
     
-    private static final int STATE_WAITING = 0;
-    private static final int STATE_DRAWING = 1;
-    private static final int STATE_THINKING = 2;
-    private static final int STATE_DONE = 3;
+    private static final int
+		TRANSITION_INIT = 0,
+		TRANSITION_CLEAR = 1,
+		TRANSITION_START_DRAW = 2,
+		TRANSITION_END_DRAW = 3,
+		TRANSITION_RECOGNITION_RESULT = 4,
+		TRANSITION_NEW_CONTACT_ADDED = 5,
+		TRANSITION_LIBRARY_LOADED = 6;
+    private static final int
+    	STATE_WAITING = 0,
+    	STATE_DRAWING = 1,
+    	STATE_THINKING = 2,
+    	STATE_DONE = 3;
     private int state = STATE_WAITING;
     
     // Workaround for a problem I don't really have an elegant solution for:
@@ -236,52 +260,105 @@ public class DoodleActivity extends Activity
 		
 		protected void onPostExecute(String result)
 		{
-			if (state == STATE_THINKING)
-			{
-				//callButton.setVisibility(View.VISIBLE);
-				toolbarText.setText("Maybe " + result + "?");
-				state = STATE_DONE;
-			}
+			doStateTransition(TRANSITION_RECOGNITION_RESULT, result);
 		};
 	};
 	
 	@Override
 	public void onClearView() {
-		callButton.setVisibility(View.GONE);
-		if (currentRecognizer != null && !currentRecognizer.isCancelled()) {
-			currentRecognizer.cancel(true);
-		}
-		libraryLoadPendingDoodleRecognition = null;
-		state = STATE_WAITING;
-		toolbarText.setText("Draw to start...");
+		doStateTransition(TRANSITION_CLEAR);
 	}
 	
 	@Override
 	public void onCompleteDoodle() {
-		if (doodleView.hasCompletedDoodle()) {
-			state = STATE_THINKING;
-			if (currentRecognizer != null && !currentRecognizer.isCancelled()) {
-				currentRecognizer.cancel(true);
-			}
-			if (library == null) {
-				System.out.println("! Library not yet loaded! recognition must wait");
-				libraryLoadPendingDoodleRecognition = doodleView.getDoodle();
-			} else {
-				System.out.println("Recognise!");
-				currentRecognizer = new Recognizer().execute(doodleView.getDoodle());
-			}
-		}
+		doStateTransition(TRANSITION_END_DRAW);
 	}
 	
 	@Override
 	public void onStartDrawDoodle() {
-		callButton.setVisibility(View.GONE);
-		if (currentRecognizer != null && !currentRecognizer.isCancelled()) {
-			currentRecognizer.cancel(true);
+		doStateTransition(TRANSITION_START_DRAW);
+	}
+	
+	private void doStateTransition(int transition)
+	{
+		doStateTransition(transition, null);
+	}
+	
+	private void doStateTransition(int transition, Object arg)
+	{
+		boolean libraryEmpty = (library == null) ? true : library.empty();
+		
+		if (transition == TRANSITION_INIT || transition == TRANSITION_CLEAR) {
+			if (currentRecognizer != null && !currentRecognizer.isCancelled()) {
+				currentRecognizer.cancel(true);
+			}
+			libraryLoadPendingDoodleRecognition = null;
+			state = STATE_WAITING;
+			btnLeft.setEnabled(false);
+			btnResult.setEnabled(false);
+			btnRight.setEnabled(!libraryEmpty);
+			btnResult.setText(getString(R.string.toolbar_state_waiting));
+		} else if (transition == TRANSITION_START_DRAW) {
+			if (currentRecognizer != null && !currentRecognizer.isCancelled()) {
+				currentRecognizer.cancel(true);
+			}
+			libraryLoadPendingDoodleRecognition = null;
+			state = STATE_DRAWING;
+			btnLeft.setEnabled(false);
+			btnResult.setEnabled(false);
+			btnRight.setEnabled(!libraryEmpty);
+			btnResult.setText(getString(R.string.toolbar_state_guessing));
+		} else if (transition == TRANSITION_END_DRAW) {
+			if (doodleView.hasCompletedDoodle()) {
+				if (currentRecognizer != null && !currentRecognizer.isCancelled()) {
+					currentRecognizer.cancel(true);
+				}
+				if (library == null) {
+					libraryLoadPendingDoodleRecognition = doodleView.getDoodle();
+				} else {
+					currentRecognizer = new Recognizer().execute(doodleView.getDoodle());
+				}
+				state = STATE_THINKING;
+				btnLeft.setEnabled(false);
+				btnResult.setEnabled(false);
+				btnRight.setEnabled(!libraryEmpty);
+			}
+		} else if (transition == TRANSITION_RECOGNITION_RESULT) {
+			if (state == STATE_THINKING)
+			{
+				String id = (String)arg;
+				if (new Random().nextBoolean()) {
+					btnResult.setEnabled(true);
+					btnResult.setText(id);
+				} else {
+					btnResult.setEnabled(false);
+					btnResult.setText(getString(R.string.toolbar_state_done_unknown));
+				}
+				state = STATE_DONE;
+				state = STATE_THINKING;
+				btnLeft.setEnabled(false);
+				btnResult.setEnabled(false);
+				btnRight.setEnabled(!libraryEmpty);
+			}
+		} else if (transition == TRANSITION_NEW_CONTACT_ADDED) {
+			// TODO
+			btnRight.setEnabled(true);
+		} else if (transition == TRANSITION_LIBRARY_LOADED) {
+			// See comment @ declaration of libraryLoadPendingDoodleRecognition
+			if (libraryLoadPendingDoodleRecognition != null) {
+				System.out.println("..continue recognition..");
+				if (currentRecognizer != null && !currentRecognizer.isCancelled()) {
+					currentRecognizer.cancel(true);
+				}
+				currentRecognizer = new Recognizer().execute(libraryLoadPendingDoodleRecognition);
+				libraryLoadPendingDoodleRecognition = null;
+			}
+			
+			// TODO
+			if (state == STATE_WAITING) {
+				btnRight.setEnabled(true);
+			}
 		}
-		libraryLoadPendingDoodleRecognition = null;
-		state = STATE_DRAWING;
-		toolbarText.setText("Guessing...");
 	}
 	
 	/**
@@ -296,8 +373,8 @@ public class DoodleActivity extends Activity
         	DoodleTheme theme = t.newInstance();
         	// Finally!
         	doodleView.setTheme(theme);
-        	background.setBackgroundColor(theme.getToolbarBackgroundColor());
-        	toolbarText.setTextColor(theme.getToolbarTextColor());
+        	toolbarRelativeLayout.setBackgroundColor(theme.getToolbarBackgroundColor());
+        	btnResult.setTextColor(theme.getToolbarTextColor());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -24,13 +24,14 @@ public final class R {
         public static final int titlebar=0x7f020003;
     }
     public static final class id {
-        public static final int background=0x7f090000;
-        public static final int btn_call=0x7f090002;
-        public static final int doodleview=0x7f090003;
-        public static final int goto_settings=0x7f090005;
-        public static final int save_contact=0x7f090004;
-        public static final int save_settings=0x7f090006;
-        public static final int toolbartext=0x7f090001;
+        public static final int btn_left=0x7f090001;
+        public static final int btn_right=0x7f090002;
+        public static final int doodleview=0x7f090004;
+        public static final int goto_settings=0x7f090006;
+        public static final int save_contact=0x7f090005;
+        public static final int save_settings=0x7f090007;
+        public static final int toolbar=0x7f090000;
+        public static final int toolbartext=0x7f090003;
     }
     public static final class layout {
         public static final int introduction=0x7f030000;
