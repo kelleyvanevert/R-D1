@@ -2,26 +2,31 @@ package studie.callbydoodle.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Scanner;
-
-import android.gesture.GestureStore;
 
 public class DoodleLibrary extends ArrayList<DoodleLibraryEntry> implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
 	@Override
 	public boolean add(DoodleLibraryEntry entry)
 	{
 		for (int i = 0; i < size(); i++) {
-			if (get(i).getContactID() == entry.getContactID()) {
+			if (get(i).getLookupKey() == entry.getLookupKey()) {
 				return false;
 			}
 		}
 		return super.add(entry);
+	}
+
+	public int indexOfLookupKey(String lookupKey)
+	{
+		for (int i = 0; i < size(); i++) {
+			if (get(i).getLookupKey() == lookupKey) {
+				return i;
+			}
+		}
+		
+		return -1;
 	}
 	
 	// More..?

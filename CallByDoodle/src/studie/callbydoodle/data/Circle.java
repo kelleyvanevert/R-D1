@@ -21,8 +21,12 @@
 
 package studie.callbydoodle.data;
 
-public class Circle
+import java.io.Serializable;
+
+public class Circle implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
 	private float x, y, r;
 	
 	public Circle(float x, float y, float radius)

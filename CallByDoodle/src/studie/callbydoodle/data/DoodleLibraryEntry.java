@@ -1,20 +1,24 @@
 package studie.callbydoodle.data;
 
-public class DoodleLibraryEntry
+import java.io.Serializable;
+
+public class DoodleLibraryEntry implements Serializable
 {
-	private String contact_id;
+	private static final long serialVersionUID = 1L;
+	
+	private String lookup_key;
 	private Doodle doodle;
 	// TODO more.. call activity, for example..
 	
-	public DoodleLibraryEntry(String contact_id, Doodle doodle)
+	public DoodleLibraryEntry(String lookup_key, Doodle doodle)
 	{
-		this.contact_id = contact_id;
+		this.lookup_key = lookup_key;
 		this.doodle = doodle;
 	}
 	
-	public String getContactID()
+	public String getLookupKey()
 	{
-		return contact_id;
+		return lookup_key;
 	}
 	
 	public Doodle getDoodle()

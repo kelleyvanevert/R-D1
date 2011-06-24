@@ -20,8 +20,6 @@
 
 package studie.callbydoodle;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Random;
@@ -41,15 +39,19 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.Contacts;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
 public class DoodleActivity extends Activity
-	implements DoodleViewListener, SharedPreferences.OnSharedPreferenceChangeListener
+	implements DoodleViewListener,
+	SharedPreferences.OnSharedPreferenceChangeListener,
+	View.OnClickListener
 {
 	/**
 	 * Views to handle
@@ -89,10 +91,13 @@ public class DoodleActivity extends Activity
         doodleView.setDoodleViewListener(this);
         btnLeft = (Button)findViewById(R.id.btn_left);
         btnLeft.setFocusable(false);
+        btnLeft.setOnClickListener(this);
         btnRight = (Button)findViewById(R.id.btn_right);
         btnRight.setFocusable(false);
+        btnRight.setOnClickListener(this);
         btnResult = (Button)findViewById(R.id.toolbartext);
         btnResult.setFocusable(false);
+        btnResult.setOnClickListener(this);
         toolbarRelativeLayout = (RelativeLayout)findViewById(R.id.toolbar);
         reloadTheme();
         
@@ -178,6 +183,12 @@ public class DoodleActivity extends Activity
     	case R.id.goto_settings:
     		startActivity(new Intent(this, SettingsActivity.class));
     		return true;
+    	case R.id.menu_delete_doodle:
+    		if (state == STATE_BROWSING) {
+    			library.remove(browsePosition);
+    			setBrowsingPosition(browsePosition - 1);
+    		}
+    		return true;
     	default:
     		return super.onOptionsItemSelected(item);
     	}
@@ -190,6 +201,17 @@ public class DoodleActivity extends Activity
 			startActivityForResult(new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI),
 					PICK_CONTACT_FOR_DOODLE_SAVE_REQUEST);
    		}
+    }
+    
+    private String getContactDisplayName(String lookupKey)
+    {
+    	Uri lookupUri = Uri.withAppendedPath(Contacts.CONTENT_LOOKUP_URI, lookupKey);
+    	Cursor c = getContentResolver().query(lookupUri, new String[]{Contacts.DISPLAY_NAME}, null, null, null);
+    	if (c.moveToFirst()) {
+    		return c.getString(0);
+    	} else {
+    		return null;
+    	}
     }
     
     @Override
@@ -209,8 +231,8 @@ public class DoodleActivity extends Activity
     		}
     		if (lookupKey != null && displayName != null) {
     			library.add(new DoodleLibraryEntry(lookupKey, saveDoodle));
+    			doStateTransition(TRANSITION_NEW_CONTACT_ADDED, lookupKey);
     			new LibrarySaver().execute(library);
-    			doStateTransition(TRANSITION_NEW_CONTACT_ADDED);
     		}
     	}
     }
@@ -222,12 +244,15 @@ public class DoodleActivity extends Activity
 		TRANSITION_END_DRAW = 3,
 		TRANSITION_RECOGNITION_RESULT = 4,
 		TRANSITION_NEW_CONTACT_ADDED = 5,
-		TRANSITION_LIBRARY_LOADED = 6;
+		TRANSITION_LIBRARY_LOADED = 6,
+		TRANSITION_BROWSE_BUTTON_LEFT = 7,
+		TRANSITION_BROWSE_BUTTON_RIGHT = 8;
     private static final int
     	STATE_WAITING = 0,
     	STATE_DRAWING = 1,
     	STATE_THINKING = 2,
-    	STATE_DONE = 3;
+    	STATE_DONE = 3,
+    	STATE_BROWSING = 4;
     private int state = STATE_WAITING;
     // When browsing, the 
     private int browsePosition = -1;
@@ -281,6 +306,18 @@ public class DoodleActivity extends Activity
 		doStateTransition(TRANSITION_START_DRAW);
 	}
 	
+	@Override
+	public void onClick(View v)
+	{
+		if (v == btnLeft) {
+			doStateTransition(TRANSITION_BROWSE_BUTTON_LEFT);
+		} else if (v == btnRight) {
+			doStateTransition(TRANSITION_BROWSE_BUTTON_RIGHT);
+		} else if (v == btnResult) {
+			// TODO show popup menu: [call, text]
+		}
+	}
+	
 	private void doStateTransition(int transition)
 	{
 		doStateTransition(transition, null);
@@ -309,7 +346,7 @@ public class DoodleActivity extends Activity
 			btnLeft.setEnabled(false);
 			btnResult.setEnabled(false);
 			btnRight.setEnabled(!libraryEmpty);
-			btnResult.setText(getString(R.string.toolbar_state_guessing));
+			btnResult.setText(getString(R.string.toolbar_state_thinking));
 		} else if (transition == TRANSITION_END_DRAW) {
 			if (doodleView.hasCompletedDoodle()) {
 				if (currentRecognizer != null && !currentRecognizer.isCancelled()) {
@@ -322,8 +359,9 @@ public class DoodleActivity extends Activity
 				}
 				state = STATE_THINKING;
 				btnLeft.setEnabled(false);
-				btnResult.setEnabled(false);
 				btnRight.setEnabled(!libraryEmpty);
+				btnResult.setText(getString(R.string.toolbar_state_thinking));
+				btnResult.setEnabled(false);
 			}
 		} else if (transition == TRANSITION_RECOGNITION_RESULT) {
 			if (state == STATE_THINKING)
@@ -343,8 +381,8 @@ public class DoodleActivity extends Activity
 				btnRight.setEnabled(!libraryEmpty);
 			}
 		} else if (transition == TRANSITION_NEW_CONTACT_ADDED) {
-			// TODO
-			btnRight.setEnabled(true);
+			setBrowsingPosition(library.indexOfLookupKey((String)arg));
+			state = STATE_BROWSING;
 		} else if (transition == TRANSITION_LIBRARY_LOADED) {
 			// See comment @ declaration of libraryLoadPendingDoodleRecognition
 			if (libraryLoadPendingDoodleRecognition != null) {
@@ -356,10 +394,40 @@ public class DoodleActivity extends Activity
 				libraryLoadPendingDoodleRecognition = null;
 			}
 			
-			// TODO
-			if (state == STATE_WAITING) {
+			if (!libraryEmpty) {
 				btnRight.setEnabled(true);
 			}
+		} else if (state != STATE_BROWSING && transition == TRANSITION_BROWSE_BUTTON_RIGHT) {
+			setBrowsingPosition(0);
+			state = STATE_BROWSING;
+		} else if (state == STATE_BROWSING && transition == TRANSITION_BROWSE_BUTTON_RIGHT) {
+			setBrowsingPosition(browsePosition + 1);
+		} else if (state == STATE_BROWSING && transition == TRANSITION_BROWSE_BUTTON_LEFT) {
+			setBrowsingPosition(browsePosition - 1);
+			if (browsePosition < 0) {
+				state = STATE_WAITING;
+			}
+		}
+	}
+	
+	private void setBrowsingPosition(int newpos)
+	{
+		browsePosition = newpos;
+		if (browsePosition == -1)
+		{
+			btnLeft.setEnabled(false);
+			btnRight.setEnabled(library.size() > 0);
+			btnResult.setText(getString(R.string.toolbar_state_waiting));
+			btnResult.setEnabled(false);
+			doodleView.startNewDrawing();
+		}
+		else
+		{
+			btnLeft.setEnabled(true);
+			btnRight.setEnabled(library.size() > browsePosition + 1);
+			btnResult.setText(getContactDisplayName(library.get(browsePosition).getLookupKey()));
+			btnResult.setEnabled(true);
+			doodleView.setDoodle(library.get(browsePosition).getDoodle());
 		}
 	}
 	

@@ -2,6 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/save_contact"
           android:title="@string/menu_save_contact" />
+    <item android:id="@+id/menu_delete_doodle"
+          android:title="@string/menu_delete_doodle" />
     <item android:id="@+id/goto_settings"
           android:title="@string/menu_goto_settings" />
 </menu>

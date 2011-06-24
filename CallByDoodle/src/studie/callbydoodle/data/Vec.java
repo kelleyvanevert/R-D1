@@ -21,6 +21,8 @@
 
 package studie.callbydoodle.data;
 
+import java.io.Serializable;
+
 /**
  * Very small, simple and straightforward 2d vector class.
  * The name should say enough ;)
@@ -30,8 +32,10 @@ package studie.callbydoodle.data;
  *  when you draw your doodles.. (at least I couldn't)
  * Using int's helps me implement a nicer Doodle interface, check it for details..
  */
-public class Vec
+public class Vec implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
 	private int x, y;
 	
 	public Vec(int x, int y)

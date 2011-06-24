@@ -8,7 +8,7 @@
     
     <!-- Toolbar -->
     <string name="toolbar_state_waiting">Draw to start...</string>
-    <string name="toolbar_state_guessing">Guessing...</string>
+    <string name="toolbar_state_thinking">Thinking...</string>
     <string name="toolbar_state_done_unknown">New?</string>
     
     <!-- Settings -->
@@ -20,4 +20,7 @@
     <string name="menu_goto_settings">Settings</string>
     <string name="menu_save_contact">Save</string>
     <string name="menu_save_settings">Save</string>
+    <string name="menu_delete_doodle">Delete</string>
+    <string name="menu_call_contact">Call</string>
+    <string name="menu_text_contact">Text</string>
 </resources>

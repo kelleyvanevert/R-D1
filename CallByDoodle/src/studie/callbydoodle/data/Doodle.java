@@ -1,5 +1,6 @@
 package studie.callbydoodle.data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -29,8 +30,10 @@ import android.gesture.GestureStroke;
  *  as well for an interface for recognition techniques which can be altered
  *  later according to need.
  */
-public class Doodle
+public class Doodle implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
 	private ArrayList<DoodleSegment> segments;
 	
 	/*

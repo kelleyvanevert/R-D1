@@ -1,5 +1,7 @@
 package studie.callbydoodle.data;
 
+import java.io.Serializable;
+
 
 /**
  * A segment within a Doodle object.
@@ -13,7 +15,7 @@ package studie.callbydoodle.data;
  * 
  * IMMUTABLE
  */
-public class DoodleSegment
+public class DoodleSegment implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 	

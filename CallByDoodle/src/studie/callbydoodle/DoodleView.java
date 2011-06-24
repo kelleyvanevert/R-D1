@@ -173,7 +173,7 @@ public class DoodleView extends View
 		{
 			if (!moved && currentTime - taps[0] < DOUBLECLICK_TIME_THRESHOLD)
 			{
-				startNewRecording();
+				startNewDrawing();
 			}
 			else
 			{
@@ -194,7 +194,7 @@ public class DoodleView extends View
 		return true;
 	}
 	
-	public void startNewRecording()
+	public void startNewDrawing()
 	{
 		// Stop recording
 		doodle = new Doodle();
