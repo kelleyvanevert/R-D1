@@ -6,4 +6,6 @@
           android:title="@string/menu_delete_doodle" />
     <item android:id="@+id/goto_settings"
           android:title="@string/menu_goto_settings" />
+    <item android:id="@+id/export_doodle"
+          android:title="Export" />
 </menu>

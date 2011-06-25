@@ -4,10 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import android.gesture.Gesture;
-import android.gesture.GesturePoint;
-import android.gesture.GestureStroke;
-
 /**
  * The doodle class is currently just a generalisation of the gesture.
  * We do not know if gestures will serve as our full solution, therefore
@@ -93,69 +89,5 @@ public class Doodle implements Serializable
 			clone.addDoodleSegment(segment.clone());
 		}
 		return clone;
-	}
-	
-	/**
-	 * Get the equivalent gesture.
-	 * 
-	 * In the future, we might find out we need more for recognition,
-	 *  in which case we'll change this method to a set of methods that
-	 *  do slightly different things, without having to change the
-	 *  data representation choice of this class (which is: storing a list
-	 *  of doodle segments).
-	 * @return the equivalent gesture.
-	 */
-	public Gesture getGesture()
-	{
-		/*
-		 * Since the Vec class uses int's, it is very easy to check for
-		 *  each following doodle segment whether it is a new gesture stroke
-		 *  or not.
-		 * I (Kelley) thought it would be neat to have the recording interface
-		 *  only use the "addDoodleSegment" method, instead of a bunch of methods
-		 *  like "startStroke", "addSegment", "endStroke", ..
-		 * Besides, then we're just mimicking the gesture class again, but what
-		 *  we want to do with this class is make it optional if necessary.
-		 */
-		Gesture gesture = new Gesture();
-		ArrayList<GesturePoint> points = new ArrayList<GesturePoint>();
-		DoodleSegment segment, previousSegment = DoodleSegment.DUMMY;
-		for (int i = 0; i < segments.size(); i++) {
-			segment = segments.get(i);
-			if (i == 0) {
-				// For the first segment, store both the starting and ending point
-				points.add(new GesturePoint((float)segment.getVecStart().getX(),
-            	        (float)segment.getVecStart().getY(),
-            	        segment.getTimeStart()));
-				points.add(new GesturePoint((float)segment.getVecEnd().getX(),
-            	        (float)segment.getVecEnd().getY(),
-            	        segment.getTimeEnd()));
-			} else {
-				if (!previousSegment.getVecEnd().equals(segment.getVecStart())) {
-					// We have to start a new gesture stroke
-					// First, create and save current gesture stroke
-					gesture.addStroke(new GestureStroke(points));
-					// Initialize new list of points, start recording new gesture stroke..
-					points = new ArrayList<GesturePoint>();
-					points.add(new GesturePoint((float)segment.getVecStart().getX(),
-	            	        (float)segment.getVecStart().getY(),
-	            	        segment.getTimeStart()));
-					points.add(new GesturePoint((float)segment.getVecEnd().getX(),
-	            	        (float)segment.getVecEnd().getY(),
-	            	        segment.getTimeEnd()));
-				} else {
-					// Continue creating current gesture stroke
-					points.add(new GesturePoint((float)segment.getVecEnd().getX(),
-	            	        (float)segment.getVecEnd().getY(),
-	            	        segment.getTimeEnd()));
-				}
-			}
-			previousSegment = segment;
-		}
-		
-		// Finally, create and save the current gesture stroke
-		gesture.addStroke(new GestureStroke(points));
-		
-		return gesture;
 	}
 }
