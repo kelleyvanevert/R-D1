@@ -30,7 +30,10 @@ public class Doodle implements Serializable
 	private static final long serialVersionUID = 1L;
 	
 	private ArrayList<DoodleSegment> segments;
-	private Rect rect = new Rect(0, 0, 0, 0);
+	
+	// Keep track of bounding rect and specs
+	private Rect rect;
+	private Specs specs;
 	
 	/*
 	 * Constructs a new, empty doodle, to be recorded.
@@ -38,12 +41,26 @@ public class Doodle implements Serializable
 	public Doodle()
 	{
 		segments = new ArrayList<DoodleSegment>();
+		rect = new Rect(0, 0, 0, 0);
+		specs = new Specs();
 	}
 	
 	public void addDoodleSegment(DoodleSegment segment)
 	{
 		segments.add(segment);
 		rect = rect.union(segment.getRect());
+		specs.update(segment);
+	}
+	
+	public Doodle clone()
+	{
+		Doodle clone = new Doodle();
+		for (DoodleSegment segment : segments) {
+			clone.segments.add(segment.clone());
+		}
+		clone.rect = new Rect(rect);
+		clone.specs = specs.clone();
+		return clone;
 	}
 	
 	public ArrayList<DoodleSegment> getSegments()
@@ -51,97 +68,13 @@ public class Doodle implements Serializable
 		return segments;
 	}
 	
-	public Doodle clone()
+	public Rect getRect()
 	{
-		Doodle clone = new Doodle();
-		for (DoodleSegment segment : segments) {
-			clone.addDoodleSegment(segment.clone());
-		}
-		return clone;
-	}
-	
-	public static class Specs
-	{
-		public static final int DOT_DISTANCE = 10;
-		public static final int PIXELIZATION_SIZE = 20;
-		public static final int PIXELIZATION_PAD = 2;
-		public static final int DISTINCT_ANGLES = 10;
-		
-		// Segs
-		private ArrayList<Seg> segs;
-		public void setSegs(ArrayList<Seg> s) {
-			segs = s;
-		}
-		public ArrayList<Seg> getSegs() {
-			return segs;
-			// TODO clone
-		}
-		
-		// Angle distribution
-		private int[] angleDistribution;
-		public void setAngleDistribution(int[] d) {
-			angleDistribution = d;
-		}
-		public int[] getAngleDistribution() {
-			return angleDistribution.clone();
-		}
-		
-		// Pixelization
-		private Pixelization pixelization;
-		public void setPixelization(Pixelization px) {
-			pixelization = px;
-		}
-		public Pixelization getPixelization() {
-			return pixelization.clone();
-		}
-		
-		// Compare
-		public boolean like(Specs other)
-		{
-			return true;
-		}
+		return new Rect(rect);
 	}
 	
 	public Specs getSpecs()
 	{
-		Specs specs = new Specs();
-		
-		ArrayList<Vec> dots = new ArrayList<Vec>();
-		ArrayList<Seg> segs = new ArrayList<Seg>();
-		for (DoodleSegment segment : segments) {
-			Pair<ArrayList<Vec>, ArrayList<Seg>> dotsAndSegs = segment.makeDotsAndSegs(Specs.DOT_DISTANCE);
-			dots.addAll(dotsAndSegs.A());
-			segs.addAll(dotsAndSegs.B());
-		}
-		Vec.normalize(dots, Specs.PIXELIZATION_SIZE);
-		
-		specs.setSegs(segs);
-		
-		// Analyse the angle distribution of small segments of
-		// the doodle.
-		// An improvement (TODO) would be to not "double analyse"
-		// segs drawn "over each other".
-		int[] distribution = new int[Doodle.Specs.DISTINCT_ANGLES];
-		for (Seg seg : segs) {
-			distribution[seg.Angle()]++;
-		}
-		specs.setAngleDistribution(Distributions.prepare(distribution));
-		
-		// "Pixelize"
-		int[][] pixelization = new int[Specs.PIXELIZATION_SIZE][Specs.PIXELIZATION_SIZE];
-		for (Vec dot : dots) {
-			/*
-			ArrayList<Vec> nei = dot.neighbours(Specs.PIXELIZATION_SIZE, Specs.PIXELIZATION_PAD);
-			for (Vec d : nei) {
-				try {
-					pixelization[d.getY()][d.getX()] = 1;
-				} catch (Exception e) {}
-			}
-			*/
-			//pixelization[dot.getY()][dot.getX()] = 1;
-		}
-		specs.setPixelization(new Pixelization(pixelization));
-		
 		return specs;
 	}
 }

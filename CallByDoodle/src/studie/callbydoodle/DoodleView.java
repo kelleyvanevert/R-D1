@@ -57,7 +57,7 @@ public class DoodleView extends View
 	private final int MOVE_THRESHOLD = 4;
 	
 	// Max amount of time between first tap down and second tap up in milliseconds to register double click
-	private final int DOUBLECLICK_TIME_THRESHOLD = 300;
+	private final int DOUBLECLICK_TIME_THRESHOLD = 500;
 	
 	// Check for double taps
 	private long[] taps;
@@ -197,13 +197,13 @@ public class DoodleView extends View
 	
 	public void startNewDrawing()
 	{
+		dispathDoodleViewEvent(DOODLE_VIEW_EVENT_CLEAR_VIEW);
+		
 		// Stop recording
 		doodle = new Doodle();
 		
 		// Request redraw
 		invalidate();
-		
-		dispathDoodleViewEvent(DOODLE_VIEW_EVENT_CLEAR_VIEW);
 	}
 	
 	/**

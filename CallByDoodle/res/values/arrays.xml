@@ -4,14 +4,16 @@
         <item>Simply black</item>
 		<item>Color epilepsy</item>
         <item>Circles</item>
-        <item>Pixelize!</item>
+   <!-- <item>Pixelize!</item> -->
         <item>Angles</item>
+        <item>Angle distribution</item>
 	</string-array>
 	<string-array name="themes_values">
 	    <item>DefaultTheme</item>
         <item>ColourTheme</item>
         <item>CirclesTheme</item>
-        <item>PixelizationTheme</item>
+   <!-- <item>PixelizationTheme</item> -->
+        <item>AngleTheme</item>
         <item>AngleDistributionTheme</item>
 	</string-array>    
 </resources>

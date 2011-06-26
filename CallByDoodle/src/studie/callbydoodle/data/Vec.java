@@ -25,20 +25,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
-/**
- * Very small, simple and straightforward 2d vector class.
- * The name should say enough ;)
- * 
- * By the way, I found out that floats really aren't that
- *  necessary. Int's work great too, you can't see any difference
- *  when you draw your doodles.. (at least I couldn't)
- * Using int's helps me implement a nicer Doodle interface, check it for details..
- */
 public class Vec implements Serializable, Comparable<Vec>
 {
 	private static final long serialVersionUID = 1L;
 	
-	private int x, y;
+	private double x, y;
 	
 	public Vec(int x, int y)
 	{
@@ -48,8 +39,19 @@ public class Vec implements Serializable, Comparable<Vec>
 	
 	public Vec(float x, float y)
 	{
-		this.x = (int)x;
-		this.y = (int)y;
+		this.x = x;
+		this.y = y;
+	}
+	
+	public Vec(double x, double y)
+	{
+		this.x = x;
+		this.y = y;
+	}
+	
+	public static Vec make(double angle, double length)
+	{
+		return new Vec((double)1, Math.atan(angle)).setLength(length);
 	}
 	
 	public Vec add(Vec other)
@@ -62,17 +64,37 @@ public class Vec implements Serializable, Comparable<Vec>
 		return new Vec(x - other.x, y - other.y);
 	}
 	
+	public Vec times(int c)
+	{
+		return new Vec(x*c, y*c);
+	}
+	
 	public Vec times(float c)
 	{
 		return new Vec(x*c, y*c);
 	}
 	
-	public float getLength()
+	public Vec times(double c)
 	{
-		return (float)Math.sqrt((double)x*x + y*y);
+		return new Vec(x*c, y*c);
+	}
+	
+	public double getLength()
+	{
+		return (double)Math.sqrt(x*x + y*y);
+	}
+	
+	public Vec setLength(int len)
+	{
+		return this.times(((double)len)/this.getLength());
 	}
 	
 	public Vec setLength(float len)
+	{
+		return this.times(len/this.getLength());
+	}
+	
+	public Vec setLength(double len)
 	{
 		return this.times(len/this.getLength());
 	}
@@ -97,10 +119,20 @@ public class Vec implements Serializable, Comparable<Vec>
 	
 	public int getX()
 	{
-		return x;
+		return (int)x;
 	}
 	
 	public int getY()
+	{
+		return (int)y;
+	}
+	
+	public double getDoubleX()
+	{
+		return x;
+	}
+	
+	public double getDoubleY()
 	{
 		return y;
 	}
@@ -110,7 +142,7 @@ public class Vec implements Serializable, Comparable<Vec>
 		if (x == 0) {
 			return Math.PI / 2;
 		} else {
-			return Math.atan((double)y / (double)x);
+			return Math.atan(y / x);
 		}
 	}
 	
@@ -118,6 +150,11 @@ public class Vec implements Serializable, Comparable<Vec>
 	public String toString()
 	{
 		return "("+x+","+y+")";
+	}
+	
+	public String explain()
+	{
+		return "("+x+","+y+") ~= ("+(int)x+","+(int)y+")";
 	}
 	
 	public Vec clone()
@@ -165,7 +202,21 @@ public class Vec implements Serializable, Comparable<Vec>
 		
 		return new ArrayList<Vec>(n);
 	}
-
+	
+	public static ArrayList<Vec> getStops(Vec a, Vec b, double stopDistance)
+	{
+		ArrayList<Vec> stops = new ArrayList<Vec>();
+		stops.add(a.clone());
+		
+		Vec d = make(b.subtract(a).getAngle(), stopDistance);
+		int num = (int)Math.floor(b.subtract(a).getLength() / stopDistance);
+		for (int i = 1; i <= num; i++) {
+			stops.add(a.add(d.times(i)));
+		}
+		
+		return stops;
+	}
+	
 	@Override
 	public int compareTo(Vec o)
 	{

@@ -1,7 +1,11 @@
 package studie.callbydoodle.data;
 
-public class Rect
+import java.io.Serializable;
+
+public class Rect implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
 	private int left, top, right, bottom;
 	
 	public Rect(int left, int top, int right, int bottom)

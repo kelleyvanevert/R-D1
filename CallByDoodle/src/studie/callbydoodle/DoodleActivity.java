@@ -26,16 +26,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Random;
 
 import studie.callbydoodle.DoodleView.DoodleViewListener;
 import studie.callbydoodle.data.Doodle;
 import studie.callbydoodle.data.DoodleLibrary;
 import studie.callbydoodle.data.DoodleLibraryEntry;
-import studie.callbydoodle.data.DoodleSegment;
-import studie.callbydoodle.data.Seg;
-import studie.callbydoodle.data.Vec;
+import studie.callbydoodle.data.Specs;
 import studie.callbydoodle.themes.DefaultTheme;
 import studie.callbydoodle.themes.DoodleTheme;
 import android.app.Activity;
@@ -55,6 +51,7 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Contacts;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -151,6 +148,7 @@ public class DoodleActivity extends Activity
 				return library;
 			} catch (Exception e) {
 				// Either not able to read from file, or not able to reconstruct doodle library.
+				Log.e("DoodleActivity", "Library could not be loaded!", e);
 				return new DoodleLibrary();
 			}
 		}
@@ -383,7 +381,7 @@ public class DoodleActivity extends Activity
 			}
 			
 			Doodle doodle = params[0];
-			Doodle.Specs specs = doodle.getSpecs();
+			Specs specs = doodle.getSpecs();
 			
 			// Loop through all entries, check for cancellation,
 			// then try recognition
@@ -393,9 +391,9 @@ public class DoodleActivity extends Activity
 					return null;
 				}
 				
-				//if (entry.getSpecs().like(specs)) {
-				//	return entry.getLookupKey();
-				//}
+				if (entry.getSpecs().like(specs)) {
+					return entry.getLookupKey();
+				}
 			}
 			
 			return null;
@@ -431,7 +429,20 @@ public class DoodleActivity extends Activity
 		} else if (v == btnRight) {
 			doStateTransition(TRANSITION_BROWSE_BUTTON_RIGHT);
 		} else if (v == btnResult) {
-			// TODO show popup menu: [call, text]
+			final CharSequence[] items = {"Call", "Text"};
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle("Call/text");
+			builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {}
+			});
+			builder.setItems(items, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO
+				}
+			});
+			builder.show();
 		}
 	}
 	
@@ -484,15 +495,14 @@ public class DoodleActivity extends Activity
 			if (state == STATE_THINKING)
 			{
 				if (recognizedContactLookupKey == null) {
-					btnResult.setEnabled(true);
 					btnResult.setText(getString(R.string.toolbar_state_done_unknown));
-				} else {
 					btnResult.setEnabled(true);
+				} else {
 					btnResult.setText(getContactDisplayName(recognizedContactLookupKey));
+					btnResult.setEnabled(true);
 				}
 				state = STATE_DONE;
 				btnLeft.setEnabled(false);
-				btnResult.setEnabled(false);
 				btnRight.setEnabled(!libraryEmpty);
 			}
 		} else if (transition == TRANSITION_NEW_CONTACT_ADDED) {

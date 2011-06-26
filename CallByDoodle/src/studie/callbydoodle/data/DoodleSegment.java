@@ -103,25 +103,16 @@ public class DoodleSegment implements Serializable
 		       pressureStart+" -> "+pressureEnd;
 	}
 	
-	public Pair<ArrayList<Vec>, ArrayList<Seg>> makeDotsAndSegs(double segLength)
+	public ArrayList<Seg> makeSegs(double segLength)
 	{
-		ArrayList<Vec> dots = new ArrayList<Vec>();
+		ArrayList<Vec> dots = Vec.getStops(vecStart, vecEnd, segLength);
 		ArrayList<Seg> segs = new ArrayList<Seg>();
 		
-		Vec vecDiff = getVecDiff();
-		double angle = vecDiff.getAngle();
-		double length = vecDiff.getLength();
-		double totalSegLength = 0;
-		Vec at = vecStart.clone();
-		dots.add(at);
-		Vec between = new Vec(1, (int)Math.tan(angle)).setLength((float)segLength);
-		while (totalSegLength < length) {
-			segs.add(new Seg(at, angle));
-			totalSegLength += segLength;
-			at = at.add(between);
-			dots.add(at);
+		double angle = vecEnd.subtract(vecStart).getAngle();
+		for (Vec dot : dots) {
+			segs.add(new Seg(dot.clone(), angle));
 		}
 		
-		return new Pair<ArrayList<Vec>, ArrayList<Seg>>(dots, segs);
+		return segs;
 	}
 }

@@ -1,81 +1,80 @@
 package studie.callbydoodle.data;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+
 public class Pixelization
 {
-	private int[][] px;
+	private Bitmap bitmap;
+	private Canvas canvas;
+	private static Paint paint;
 	
-	public Pixelization(int[][] px)
+	public Pixelization()
 	{
-		this.px = px;
-	}
-	
-	public int size()
-	{
-		return px.length;
-	}
-	
-	public int at(int x, int y)
-	{
-		return px[y][x];
-	}
-	
-	public int area()
-	{
-		return px.length * px.length;
-	}
-	
-	/**
-	 * Calculate the overlap between all given pixelizations,
-	 * in percentage.
-	 * (If none given, -1 will be returned..)
-	 * - Assumes the sizes are all correct!
-	 */
-	public static int overlap(Pixelization... ps)
-	{
-		if (ps.length == 0) {
-			return -1;
+		bitmap = Bitmap.createBitmap(Specs.PIXELIZATION_SIZE, Specs.PIXELIZATION_SIZE,
+			Bitmap.Config.ALPHA_8);
+		canvas = new Canvas(bitmap);
+		canvas.drawColor(Color.TRANSPARENT);
+		if (paint == null) {
+			paint = new Paint();
+			paint.setStyle(Paint.Style.STROKE);
+			paint.setColor(Color.BLACK);
+			paint.setStrokeWidth(Specs.PIXELIZATION_STROKE_WIDTH);
+			paint.setAntiAlias(false);
 		}
 		
-		int size = ps[0].px.length;
-		double oror = 0;
-		int overlap = 0;
+		/*
+		Rect r = doodle.getRect();
+		Vec offset;
+		double scale = ((double)Specs.PIXELIZATION_SIZE) / (double)Math.max(r.Width(), r.Height());
+		if (r.Height() > r.Width()) {
+			offset = new Vec(scale * Math.floor((r.Height() - r.Width()) / 2), 0);
+		} else {
+			offset = new Vec(0, scale * Math.floor((r.Width() - r.Height()) / 2));
+		}
 		
-		for (int y = 0; y < size; y++) {
-			for (int x = 0; x < size; x++) {
-				boolean all = true, exist = false;
-				for (int p = 0; p < ps.length; p++) {
-					all = all && ps[p].px[y][x] == 1;
-					exist = exist || ps[p].px[y][x] == 1;
-				}
-				if (all) {
+		for (DoodleSegment segment : doodle.getSegments()) {
+			draw(
+					offset.add(new Vec(
+							scale * segment.getVecStart().getDoubleX(),
+							scale * segment.getVecStart().getDoubleY()
+							)),
+					offset.add(new Vec(
+							scale * segment.getVecEnd().getDoubleX(),
+							scale * segment.getVecEnd().getDoubleY()
+							))
+					);
+		}
+		*/
+	}
+	
+	private void draw(Vec a, Vec b)
+	{
+		canvas.drawLine(a.getX(), a.getY(), b.getX(), b.getY(), paint);
+	}
+	
+	public static int similarity(Pixelization a, Pixelization b)
+	{
+		int total = 0, overlap = 0;
+		
+		for (int y = 0; y < Specs.PIXELIZATION_SIZE; y++) {
+			for (int x = 0; x < Specs.PIXELIZATION_SIZE; x++) {
+				if (a.bitmap.getPixel(x, y) != Color.TRANSPARENT && b.bitmap.getPixel(x, y) != Color.TRANSPARENT) {
 					overlap++;
-				}
-				if (exist) {
-					oror++;
+					total++;
+				} else if (a.bitmap.getPixel(x, y) != Color.TRANSPARENT || b.bitmap.getPixel(x, y) != Color.TRANSPARENT) {
+					total++;
 				}
 			}
 		}
 		
-		return (int)(overlap * (100.0 / oror));
+		return (int)((overlap * 100.0) / total);
 	}
 	
-	public String display()
+	public Bitmap getBitmap()
 	{
-		StringBuilder str = new StringBuilder();
-		
-		for (int y = 0; y < px.length; y++) {
-			for (int x = 0; x < px[y].length; x++) {
-				str.append(px[y][x] == 1 ? 'X' : '.');
-				str.append(' ');
-			}
-			str.append("\n");
-		}
-		
-		return str.toString();
-	}
-	
-	public Pixelization clone()
-	{
-		return new Pixelization(px.clone());
+		return bitmap;
 	}
 }
