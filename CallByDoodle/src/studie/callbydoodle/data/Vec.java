@@ -22,6 +22,8 @@
 package studie.callbydoodle.data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.TreeSet;
 
 /**
  * Very small, simple and straightforward 2d vector class.
@@ -32,7 +34,7 @@ import java.io.Serializable;
  *  when you draw your doodles.. (at least I couldn't)
  * Using int's helps me implement a nicer Doodle interface, check it for details..
  */
-public class Vec implements Serializable
+public class Vec implements Serializable, Comparable<Vec>
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -103,9 +105,13 @@ public class Vec implements Serializable
 		return y;
 	}
 	
-	public static Vec parseVec(String str) throws Exception {
-		String[] s = str.replaceAll("[\\(\\)\\s]", "").split(",");
-		return new Vec(Integer.parseInt(s[0]), Integer.parseInt(s[1]));
+	public double getAngle()
+	{
+		if (x == 0) {
+			return Math.PI / 2;
+		} else {
+			return Math.atan((double)y / (double)x);
+		}
 	}
 	
 	@Override
@@ -117,5 +123,56 @@ public class Vec implements Serializable
 	public Vec clone()
 	{
 		return new Vec(x, y);
+	}
+	
+	public static void normalize(ArrayList<Vec> vecs, int size)
+	{
+		if (vecs.size() == 0) {
+			return;
+		}
+		int num = vecs.size();
+		
+		Rect bound = new Rect(vecs.get(0), vecs.get(0));
+		for (Vec vec : vecs) {
+			bound = bound.fit(vec);
+		}
+		
+		float scaleX = (size - 1) / (float)bound.Width();
+		float scaleY = (size - 1) / (float)bound.Height();
+		for (int i = 0; i < num; i++) {
+			Vec n = vecs.get(i).subtract(bound.TopLeft());
+			vecs.set(i, new Vec(n.getX() * scaleX, n.getY() * scaleY));
+		}
+	}
+	
+	public ArrayList<Vec> neighbours(int exclMax)
+	{
+		return neighbours(exclMax, 1);
+	}
+	
+	public ArrayList<Vec> neighbours(int exclMax, int order)
+	{
+		TreeSet<Vec> n = new TreeSet<Vec>();
+		
+		for (int y = 0; y <= order; y++) {
+			for (int x = 0; x <= order - y; x++) {
+				n.add(add(new Vec(x, y)));
+				n.add(add(new Vec(-x, y)));
+				n.add(add(new Vec(x, -y)));
+				n.add(add(new Vec(-x, -y)));
+			}
+		}
+		
+		return new ArrayList<Vec>(n);
+	}
+
+	@Override
+	public int compareTo(Vec o)
+	{
+		if (y == o.y) {
+			return x == o.x ? 0 : (x > o.x ? 1 : -1);
+		} else {
+			return y == o.y ? 0 : (y > o.y ? 1 : -1);
+		}
 	}
 }

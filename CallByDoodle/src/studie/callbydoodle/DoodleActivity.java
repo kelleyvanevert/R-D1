@@ -26,12 +26,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Random;
 
 import studie.callbydoodle.DoodleView.DoodleViewListener;
 import studie.callbydoodle.data.Doodle;
 import studie.callbydoodle.data.DoodleLibrary;
 import studie.callbydoodle.data.DoodleLibraryEntry;
+import studie.callbydoodle.data.DoodleSegment;
+import studie.callbydoodle.data.Seg;
+import studie.callbydoodle.data.Vec;
 import studie.callbydoodle.themes.DefaultTheme;
 import studie.callbydoodle.themes.DoodleTheme;
 import android.app.Activity;
@@ -202,7 +206,8 @@ public class DoodleActivity extends Activity
     		}
     		return true;
     	case R.id.export_doodle:
-    		debugExportDoodle();
+    		doodleView.getDoodle().getSpecs();
+    		//debugExportDoodle();
     		return true;
     	default:
     		return super.onOptionsItemSelected(item);
@@ -350,8 +355,10 @@ public class DoodleActivity extends Activity
     	STATE_DONE = 3,
     	STATE_BROWSING = 4;
     private int state = STATE_WAITING;
-    // When browsing, the 
+    // If browsing 
     private int browsePosition = -1;
+    // After recognition
+    private String recognizedContactLookupKey = null;
     
     // Workaround for a problem I don't really have an elegant solution for:
     // Currently, I'm both loading the library (at the initial application start)
@@ -371,19 +378,33 @@ public class DoodleActivity extends Activity
 		@Override
 		protected String doInBackground(Doodle... params)
 		{
-			// Try to recognize the doodle.
-			// !! Don't forget to periodically check for isCancelled(), for efficiency..
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				return "Interrupt";
+			if (params.length == 0) {
+				return null;
 			}
-			return "Kelley";
+			
+			Doodle doodle = params[0];
+			Doodle.Specs specs = doodle.getSpecs();
+			
+			// Loop through all entries, check for cancellation,
+			// then try recognition
+			for (DoodleLibraryEntry entry : library)
+			{
+				if (isCancelled()) {
+					return null;
+				}
+				
+				//if (entry.getSpecs().like(specs)) {
+				//	return entry.getLookupKey();
+				//}
+			}
+			
+			return null;
 		}
 		
 		protected void onPostExecute(String result)
 		{
-			doStateTransition(TRANSITION_RECOGNITION_RESULT, result);
+			recognizedContactLookupKey = result;
+			doStateTransition(TRANSITION_RECOGNITION_RESULT);
 		};
 	};
 	
@@ -462,16 +483,14 @@ public class DoodleActivity extends Activity
 		} else if (transition == TRANSITION_RECOGNITION_RESULT) {
 			if (state == STATE_THINKING)
 			{
-				String id = (String)arg;
-				if (new Random().nextBoolean()) {
+				if (recognizedContactLookupKey == null) {
 					btnResult.setEnabled(true);
-					btnResult.setText(id);
-				} else {
-					btnResult.setEnabled(false);
 					btnResult.setText(getString(R.string.toolbar_state_done_unknown));
+				} else {
+					btnResult.setEnabled(true);
+					btnResult.setText(getContactDisplayName(recognizedContactLookupKey));
 				}
 				state = STATE_DONE;
-				state = STATE_THINKING;
 				btnLeft.setEnabled(false);
 				btnResult.setEnabled(false);
 				btnRight.setEnabled(!libraryEmpty);

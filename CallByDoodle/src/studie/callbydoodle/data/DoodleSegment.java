@@ -1,6 +1,7 @@
 package studie.callbydoodle.data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 
 /**
@@ -22,6 +23,7 @@ public class DoodleSegment implements Serializable
 	private Vec vecStart, vecEnd;
 	private long timeStart, timeEnd;
 	private float pressureStart, pressureEnd;
+	private Rect rect;
 	
 	// The time may come that you need a dummy segment..
 	public static final DoodleSegment DUMMY = new DoodleSegment(new Vec(-1,-1), new Vec(-1,-1), (long)0, (long)0, (float)0, (float)0);
@@ -34,6 +36,7 @@ public class DoodleSegment implements Serializable
 		this.timeEnd = timeEnd;
 		this.pressureStart = pressureStart;
 		this.pressureEnd = pressureEnd;
+		rect = new Rect(vecStart, vecEnd);
 	}
 	
 	public Vec getVecStart()
@@ -46,6 +49,11 @@ public class DoodleSegment implements Serializable
 		return vecEnd;
 	}
 	
+	public Vec getVecDiff()
+	{
+		return vecEnd.subtract(vecStart);
+	}
+	
 	public long getTimeStart()
 	{
 		return timeStart;
@@ -54,6 +62,11 @@ public class DoodleSegment implements Serializable
 	public long getTimeEnd()
 	{
 		return timeEnd;
+	}
+	
+	public long getTimeDiff()
+	{
+		return timeEnd - timeStart;
 	}
 	
 	public float getPressureStart()
@@ -66,20 +79,14 @@ public class DoodleSegment implements Serializable
 		return pressureEnd;
 	}
 	
-	public static DoodleSegment parseDoodleSegment(String line) throws Exception
+	public float getPressureDiff()
 	{
-		line = line.replaceAll("\\s", "").replaceAll("->", ";");
-		String[] pieces = line.split(";");
-		return new DoodleSegment(Vec.parseVec(pieces[0]), Vec.parseVec(pieces[1]),
-				Long.parseLong(pieces[2]), Long.parseLong(pieces[3]),
-				Float.parseFloat(pieces[4]), Float.parseFloat(pieces[5]));
+		return pressureEnd - pressureStart;
 	}
 	
-	public String serialize()
+	public Rect getRect()
 	{
-		return vecStart.toString()+" -> "+vecEnd.toString()+"; "+
-		       timeStart+" -> "+timeEnd+"; "+
-		       pressureStart+" -> "+pressureEnd;
+		return new Rect(rect);
 	}
 	
 	public DoodleSegment clone()
@@ -87,5 +94,34 @@ public class DoodleSegment implements Serializable
 		return new DoodleSegment(vecStart.clone(), vecEnd.clone(),
 				timeStart, timeEnd,
 				pressureStart, pressureEnd);
+	}
+	
+	public String toString()
+	{
+		return vecStart.toString()+" -> "+vecEnd.toString()+"; "+
+		       timeStart+" -> "+timeEnd+"; "+
+		       pressureStart+" -> "+pressureEnd;
+	}
+	
+	public Pair<ArrayList<Vec>, ArrayList<Seg>> makeDotsAndSegs(double segLength)
+	{
+		ArrayList<Vec> dots = new ArrayList<Vec>();
+		ArrayList<Seg> segs = new ArrayList<Seg>();
+		
+		Vec vecDiff = getVecDiff();
+		double angle = vecDiff.getAngle();
+		double length = vecDiff.getLength();
+		double totalSegLength = 0;
+		Vec at = vecStart.clone();
+		dots.add(at);
+		Vec between = new Vec(1, (int)Math.tan(angle)).setLength((float)segLength);
+		while (totalSegLength < length) {
+			segs.add(new Seg(at, angle));
+			totalSegLength += segLength;
+			at = at.add(between);
+			dots.add(at);
+		}
+		
+		return new Pair<ArrayList<Vec>, ArrayList<Seg>>(dots, segs);
 	}
 }

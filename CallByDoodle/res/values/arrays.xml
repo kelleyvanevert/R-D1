@@ -3,11 +3,15 @@
 	<string-array name="themes">
         <item>Simply black</item>
 		<item>Color epilepsy</item>
-		<item>Circles</item>
+        <item>Circles</item>
+        <item>Pixelize!</item>
+        <item>Angles</item>
 	</string-array>
 	<string-array name="themes_values">
 	    <item>DefaultTheme</item>
         <item>ColourTheme</item>
-	    <item>CirclesTheme</item>
+        <item>CirclesTheme</item>
+        <item>PixelizationTheme</item>
+        <item>AngleDistributionTheme</item>
 	</string-array>    
 </resources>
