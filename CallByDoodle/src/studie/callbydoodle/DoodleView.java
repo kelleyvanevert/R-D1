@@ -67,11 +67,11 @@ public class DoodleView extends View
 	private MotionEvent lastEvent;
 	private long lastTime;
 	private Vec lastVec;
-	private float lastPressure;
+	private int lastPressure;
 	private MotionEvent currentEvent;
 	private long currentTime;
 	private Vec currentVec;
-	private float currentPressure;
+	private int currentPressure;
 	
 	// Is a new stroke starting?
 	private boolean moved;
@@ -135,7 +135,7 @@ public class DoodleView extends View
 		currentEvent = event;
 		currentTime = SystemClock.uptimeMillis();
 		currentVec = new Vec(currentEvent.getX(), currentEvent.getY());
-		currentPressure = currentEvent.getPressure();
+		currentPressure = (int)(currentEvent.getPressure() * 100);
 		
 		if (event.getAction() == MotionEvent.ACTION_DOWN)
 		{
@@ -161,7 +161,6 @@ public class DoodleView extends View
 				doodle.addDoodleSegment(
 						new DoodleSegment(
 								lastVec, currentVec,
-								lastTime, currentTime,
 								lastPressure, currentPressure
 								)
 						);

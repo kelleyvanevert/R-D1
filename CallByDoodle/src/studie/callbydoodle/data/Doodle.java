@@ -30,6 +30,7 @@ public class Doodle implements Serializable
 	private static final long serialVersionUID = 1L;
 	
 	private ArrayList<DoodleSegment> segments;
+	private boolean firstSegment = false;
 	
 	// Keep track of bounding rect and specs
 	private Rect rect;
@@ -42,13 +43,19 @@ public class Doodle implements Serializable
 	{
 		segments = new ArrayList<DoodleSegment>();
 		rect = new Rect(0, 0, 0, 0);
-		specs = new Specs();
+		specs = new Specs(this);
 	}
 	
 	public void addDoodleSegment(DoodleSegment segment)
 	{
 		segments.add(segment);
-		rect = rect.union(segment.getRect());
+		if (firstSegment) {
+			// First added segment
+			rect = segment.getRect();
+			firstSegment = false;
+		} else {
+			rect = rect.union(segment.getRect());
+		}
 		specs.update(segment);
 	}
 	
@@ -60,6 +67,8 @@ public class Doodle implements Serializable
 		}
 		clone.rect = new Rect(rect);
 		clone.specs = specs.clone();
+		clone.firstSegment = firstSegment;
+		
 		return clone;
 	}
 	

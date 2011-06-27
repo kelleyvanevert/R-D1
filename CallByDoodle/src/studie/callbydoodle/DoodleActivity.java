@@ -200,6 +200,7 @@ public class DoodleActivity extends Activity
     	case R.id.menu_delete_doodle:
     		if (state == STATE_BROWSING) {
     			library.remove(browsePosition);
+    			new LibrarySaver().execute(library);
     			setBrowsingPosition(browsePosition - 1);
     		}
     		return true;

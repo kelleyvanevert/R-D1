@@ -21,19 +21,16 @@ public class DoodleSegment implements Serializable
 	private static final long serialVersionUID = 1L;
 	
 	private Vec vecStart, vecEnd;
-	private long timeStart, timeEnd;
-	private float pressureStart, pressureEnd;
+	private int pressureStart, pressureEnd;
 	private Rect rect;
 	
 	// The time may come that you need a dummy segment..
-	public static final DoodleSegment DUMMY = new DoodleSegment(new Vec(-1,-1), new Vec(-1,-1), (long)0, (long)0, (float)0, (float)0);
+	public static final DoodleSegment DUMMY = new DoodleSegment(new Vec(-1,-1), new Vec(-1,-1), 0, 0);
 	
-	public DoodleSegment(Vec vecStart, Vec vecEnd, long timeStart, long timeEnd, float pressureStart, float pressureEnd)
+	public DoodleSegment(Vec vecStart, Vec vecEnd, int pressureStart, int pressureEnd)
 	{
 		this.vecStart = vecStart;
 		this.vecEnd = vecEnd;
-		this.timeStart = timeStart;
-		this.timeEnd = timeEnd;
 		this.pressureStart = pressureStart;
 		this.pressureEnd = pressureEnd;
 		rect = new Rect(vecStart, vecEnd);
@@ -54,32 +51,17 @@ public class DoodleSegment implements Serializable
 		return vecEnd.subtract(vecStart);
 	}
 	
-	public long getTimeStart()
-	{
-		return timeStart;
-	}
-	
-	public long getTimeEnd()
-	{
-		return timeEnd;
-	}
-	
-	public long getTimeDiff()
-	{
-		return timeEnd - timeStart;
-	}
-	
-	public float getPressureStart()
+	public int getPressureStart()
 	{
 		return pressureStart;
 	}
 	
-	public float getPressureEnd()
+	public int getPressureEnd()
 	{
 		return pressureEnd;
 	}
 	
-	public float getPressureDiff()
+	public int getPressureDiff()
 	{
 		return pressureEnd - pressureStart;
 	}
@@ -92,14 +74,12 @@ public class DoodleSegment implements Serializable
 	public DoodleSegment clone()
 	{
 		return new DoodleSegment(vecStart.clone(), vecEnd.clone(),
-				timeStart, timeEnd,
 				pressureStart, pressureEnd);
 	}
 	
 	public String toString()
 	{
 		return vecStart.toString()+" -> "+vecEnd.toString()+"; "+
-		       timeStart+" -> "+timeEnd+"; "+
 		       pressureStart+" -> "+pressureEnd;
 	}
 	

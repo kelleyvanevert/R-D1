@@ -21,7 +21,7 @@ public class ColourTheme implements DoodleTheme
 	private final float HUE_COLOR_VALUE = (float)0.7;
 	
 	// MotionEvent.getPressure() times this constant to get the drawing radius
-	private final int PRESSURE_TO_RADIUS = 60;
+	private final float PRESSURE_TO_RADIUS = (float)0.6;
 	
 	public ColourTheme()
 	{

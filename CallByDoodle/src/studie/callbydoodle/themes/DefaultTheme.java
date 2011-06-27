@@ -17,7 +17,7 @@ public class DefaultTheme implements DoodleTheme
 	public static final int BACKGROUND_COLOR = Color.WHITE;
 	public static final int PAINT_COLOR = Color.BLACK;
 	// MotionEvent.getPressure() times this constant to get the drawing radius
-	public static final int PRESSURE_TO_RADIUS = 60;
+	public static final float PRESSURE_TO_RADIUS = (float)0.6;
 	
 	public DefaultTheme()
 	{

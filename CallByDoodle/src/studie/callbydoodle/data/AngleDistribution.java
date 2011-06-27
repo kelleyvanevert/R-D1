@@ -30,6 +30,11 @@ public class AngleDistribution implements Serializable
 		} catch (Exception e) {}
 	}
 	
+	public void reset()
+	{
+		distribution = new int[Specs.NUM_DISTINCT_ANGLES];
+	}
+	
 	public int count(int angle)
 	{
 		try {
