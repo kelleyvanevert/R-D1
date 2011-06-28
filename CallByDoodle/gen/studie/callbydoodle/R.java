@@ -26,8 +26,8 @@ public final class R {
     public static final class id {
         public static final int btn_left=0x7f090001;
         public static final int btn_right=0x7f090002;
+        public static final int clear_drawing=0x7f090008;
         public static final int doodleview=0x7f090004;
-        public static final int export_doodle=0x7f090008;
         public static final int goto_settings=0x7f090007;
         public static final int menu_call_contact=0x7f090009;
         public static final int menu_delete_doodle=0x7f090006;
@@ -53,6 +53,7 @@ public final class R {
         public static final int doodle_activity_name=0x7f070001;
         public static final int introduction_activity_name=0x7f070003;
         public static final int menu_call_contact=0x7f07000e;
+        public static final int menu_clear_drawing=0x7f070010;
         public static final int menu_delete_doodle=0x7f07000d;
         /**  Menu 
          */

@@ -20,10 +20,6 @@
 
 package studie.callbydoodle;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
@@ -32,7 +28,6 @@ import studie.callbydoodle.data.Doodle;
 import studie.callbydoodle.data.DoodleLibrary;
 import studie.callbydoodle.data.DoodleLibraryEntry;
 import studie.callbydoodle.data.Specs;
-import studie.callbydoodle.themes.DefaultTheme;
 import studie.callbydoodle.themes.DoodleTheme;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -41,13 +36,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Contacts;
@@ -58,7 +49,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.RelativeLayout;
 
 public class DoodleActivity extends Activity
@@ -204,94 +194,12 @@ public class DoodleActivity extends Activity
     			setBrowsingPosition(browsePosition - 1);
     		}
     		return true;
-    	case R.id.export_doodle:
-    		doodleView.getDoodle().getSpecs();
-    		//debugExportDoodle();
+    	case R.id.clear_drawing:
+    		doStateTransition(TRANSITION_CLEAR);
     		return true;
     	default:
     		return super.onOptionsItemSelected(item);
     	}
-    }
-    
-    private void debugExportDoodle()
-    {
-		String state = Environment.getExternalStorageState();
-		if (Environment.MEDIA_MOUNTED.equals(state)) {
-			// Doodle to be saved
-			final Doodle saveDoodle = doodleView.getDoodle();
-			
-			// Make / go to export directory
-			String d = Environment.getExternalStorageDirectory().getAbsolutePath();
-			final File exportDir = new File(d + File.separator + "callbydoodle");
-			if (!exportDir.exists()) exportDir.mkdir();
-			
-			// Ask name for doodle
-			AlertDialog.Builder alert = new AlertDialog.Builder(this);
-			alert.setTitle("Name?");
-			alert.setMessage("Identifying name?");
-			final EditText input = new EditText(this);
-			alert.setView(input);
-			alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					String name = input.getText().toString();
-					
-					// Save doodle to [name].doodle
-					File doodleObjectFile = new File(exportDir + File.separator + name + ".doodle");
-					if (doodleObjectFile.exists()) {
-						doodleObjectFile.delete();
-					}
-					try {
-						doodleObjectFile.createNewFile();
-					} catch (IOException e) {
-						System.out.println("Error creating doodle object file");
-						e.printStackTrace();
-						return;
-					}
-					try {
-						ObjectOutputStream o = new ObjectOutputStream(new FileOutputStream(doodleObjectFile));
-						o.writeObject(saveDoodle);
-					} catch (FileNotFoundException e) {
-						System.out.println("Error recognizing doodle object export file!");
-						e.printStackTrace();
-						return;
-					} catch (IOException e) {
-						System.out.println("Weird other error!");
-						e.printStackTrace();
-						return;
-					}
-					
-					// Save bitmap to [name].png
-					File doodleBitmapFile = new File(exportDir + File.separator + name + ".png");
-					if (doodleBitmapFile.exists()) {
-						doodleBitmapFile.delete();
-					}
-					try {
-						doodleBitmapFile.createNewFile();
-					} catch (IOException e) {
-						System.out.println("Error creating doodle bitmap file");
-						e.printStackTrace();
-						return;
-					}
-					Rect size = doodleView.getSize();
-					Bitmap bitmap = Bitmap.createBitmap(size.width(), size.height(), Bitmap.Config.RGB_565);
-					Canvas canvas = new Canvas(bitmap);
-					DefaultTheme theme = new DefaultTheme();
-					theme.drawDoodle(canvas, doodleView.getDoodle());
-					try {
-						FileOutputStream o = new FileOutputStream(doodleBitmapFile);
-						bitmap.compress(Bitmap.CompressFormat.PNG, 100, o);
-					} catch (FileNotFoundException e) {
-						System.out.println("Error recognizing doodle bitmap export file!");
-						e.printStackTrace();
-						return;
-					}
-				}
-			});
-			alert.show();
-		} else {
-			System.out.println("Could not save doodle: storage mount error!");
-		}
     }
     
     private void tryPerformSaveContact()

@@ -23,4 +23,5 @@
     <string name="menu_delete_doodle">Delete</string>
     <string name="menu_call_contact">Call</string>
     <string name="menu_text_contact">Text</string>
+    <string name="menu_clear_drawing">Clear</string>
 </resources>
