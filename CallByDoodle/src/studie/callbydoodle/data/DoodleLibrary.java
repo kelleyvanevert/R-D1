@@ -28,6 +28,16 @@ public class DoodleLibrary extends ArrayList<DoodleLibraryEntry> implements Seri
 		
 		return -1;
 	}
+
+	public void removeDoodleWithLookupKey(String lookupKey)
+	{
+		for (int i = 0; i < size(); i++) {
+			if (get(i).getLookupKey() == lookupKey) {
+				remove(i);
+				return;
+			}
+		}
+	}
 	
 	// More..?
 	// Sort by call activity?

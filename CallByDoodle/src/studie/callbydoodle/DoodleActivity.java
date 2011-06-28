@@ -22,6 +22,7 @@ package studie.callbydoodle;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 
 import studie.callbydoodle.DoodleView.DoodleViewListener;
 import studie.callbydoodle.data.Doodle;
@@ -42,6 +43,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Contacts;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -68,6 +70,7 @@ public class DoodleActivity extends Activity
 	 *  these attributes..
 	 */
 	private static final int PICK_CONTACT_FOR_DOODLE_SAVE_REQUEST = 1;
+	private static final int ADD_NEW_CONTACT_FOR_DOODLE_SAVE_REQUEST = 2;
 	private Doodle saveDoodle = null;
 	
     @Override
@@ -181,28 +184,18 @@ public class DoodleActivity extends Activity
     {
     	switch (item.getItemId())
     	{
-    	case R.id.save_contact:
-    		tryPerformSaveContact();
-    		return true;
     	case R.id.goto_settings:
     		startActivity(new Intent(this, SettingsActivity.class));
     		return true;
-    	case R.id.menu_delete_doodle:
-    		if (state == STATE_BROWSING) {
-    			library.remove(browsePosition);
-    			new LibrarySaver().execute(library);
-    			setBrowsingPosition(browsePosition - 1);
-    		}
-    		return true;
     	case R.id.clear_drawing:
-    		doStateTransition(TRANSITION_CLEAR);
+    		doodleView.startNewDrawing();
     		return true;
     	default:
     		return super.onOptionsItemSelected(item);
     	}
     }
     
-    private void tryPerformSaveContact()
+    private void performSaveToExistingContact()
     {
 		if (doodleView.hasCompletedDoodle()) {
 			saveDoodle = doodleView.getDoodle();
@@ -211,21 +204,66 @@ public class DoodleActivity extends Activity
    		}
     }
     
+    private void performSaveToNewContact()
+    {
+		if (doodleView.hasCompletedDoodle()) {
+			startActivityForResult(new Intent(Intent.ACTION_INSERT, ContactsContract.Contacts.CONTENT_URI),
+					ADD_NEW_CONTACT_FOR_DOODLE_SAVE_REQUEST);
+		}
+    }
+    
+    private void performConnectToExistingEntry()
+    {
+    	ArrayList<String> names = new ArrayList<String>();
+    	for (DoodleLibraryEntry entry : library) {
+    		names.add(getContactDisplayName(entry.getLookupKey()));
+    	}
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	builder.setTitle("Select existing doodle contact");
+    	builder.setItems(names.toArray(new String[] {}), new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO logic
+				saveDoodle = null;
+				setBrowsingPosition(which);
+				state = STATE_BROWSING;
+			}
+		});
+    	builder.show();
+    }
+    
     private String getContactDisplayName(String lookupKey)
     {
-    	Uri lookupUri = Uri.withAppendedPath(Contacts.CONTENT_LOOKUP_URI, lookupKey);
-    	Cursor c = getContentResolver().query(lookupUri, new String[]{Contacts.DISPLAY_NAME}, null, null, null);
-    	if (c.moveToFirst()) {
-    		return c.getString(0);
-    	} else {
-    		return null;
-    	}
+    	Cursor c = getContentResolver().query(
+    			Uri.withAppendedPath(Contacts.CONTENT_LOOKUP_URI, lookupKey),
+    			new String[] {Contacts.DISPLAY_NAME},
+    			null,
+    			null,
+    			null
+    	);
+    	return c.moveToFirst() ? c.getString(0) : null;
+    }
+    
+    // This doesn't return the phone number we want (primary); hmm..
+    private String getContactPhoneNumber(String lookupKey)
+    {
+    	Cursor c = getContentResolver().query(
+    				ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+    				null,
+    				ContactsContract.CommonDataKinds.Phone.LOOKUP_KEY + " LIKE '" + lookupKey + "'",
+    				null,
+    				null
+    	);
+    	
+    	return c.moveToFirst() ? c.getString(c.getColumnIndex(Phone.DATA)) : null;
     }
     
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-    	if (requestCode == PICK_CONTACT_FOR_DOODLE_SAVE_REQUEST && saveDoodle != null) {
+    	if (saveDoodle != null && requestCode == ADD_NEW_CONTACT_FOR_DOODLE_SAVE_REQUEST) {
+    		// ..
+    	} else if (saveDoodle != null && requestCode == PICK_CONTACT_FOR_DOODLE_SAVE_REQUEST) {
         	String lookupKey = null,
         	       displayName = null;
     		if (resultCode == Activity.RESULT_OK) {
@@ -264,8 +302,8 @@ public class DoodleActivity extends Activity
     private int state = STATE_WAITING;
     // If browsing 
     private int browsePosition = -1;
-    // After recognition
-    private String recognizedContactLookupKey = null;
+    // After recognition, or while browsing
+    private String activeLookupKey = null;
     
     // Workaround for a problem I don't really have an elegant solution for:
     // Currently, I'm both loading the library (at the initial application start)
@@ -310,7 +348,7 @@ public class DoodleActivity extends Activity
 		
 		protected void onPostExecute(String result)
 		{
-			recognizedContactLookupKey = result;
+			activeLookupKey = result;
 			doStateTransition(TRANSITION_RECOGNITION_RESULT);
 		};
 	};
@@ -338,21 +376,63 @@ public class DoodleActivity extends Activity
 		} else if (v == btnRight) {
 			doStateTransition(TRANSITION_BROWSE_BUTTON_RIGHT);
 		} else if (v == btnResult) {
-			final CharSequence[] items = {"Call", "Text"};
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setTitle("Call/text");
-			builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {}
-			});
-			builder.setItems(items, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					// TODO
+			if (state == STATE_DONE) {
+				if (activeLookupKey != null) {
+					displayContactModal();
+				} else {
+					displaySaveEntryModal();
 				}
-			});
-			builder.show();
+			} else if (state == STATE_BROWSING) {
+				if (activeLookupKey != null) {
+					displayContactModal();
+				} else {
+					// (SHOULD NEVER HAPPEN)
+				}
+			}
 		}
+	}
+	
+	private void displayContactModal()
+	{
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setItems(R.array.contact_popup_menu, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (which == 0) {
+					startActivity(new Intent(Intent.ACTION_VIEW, Uri.withAppendedPath(Contacts.CONTENT_LOOKUP_URI, activeLookupKey)));
+					finish();
+				} else if (which == 1) {
+		    		if (state == STATE_BROWSING) {
+		    			library.remove(browsePosition);
+		    			new LibrarySaver().execute(library);
+		    			setBrowsingPosition(browsePosition - 1);
+		    		} else {
+		    			library.removeDoodleWithLookupKey(activeLookupKey);
+		    			new LibrarySaver().execute(library);
+		    			setBrowsingPosition(-1);
+		    		}
+				}
+			}
+		});
+		builder.show();
+	}
+	
+	private void displaySaveEntryModal()
+	{
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setItems(R.array.new_entry_popup_menu, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (which == 0) {
+					performSaveToExistingContact();
+				} else if (which == 1) {
+					performSaveToNewContact();
+				} else if (which == 2) {
+					performConnectToExistingEntry();
+				}
+			}
+		});
+		builder.show();
 	}
 	
 	private void doStateTransition(int transition)
@@ -403,11 +483,11 @@ public class DoodleActivity extends Activity
 		} else if (transition == TRANSITION_RECOGNITION_RESULT) {
 			if (state == STATE_THINKING)
 			{
-				if (recognizedContactLookupKey == null) {
+				if (activeLookupKey == null) {
 					btnResult.setText(getString(R.string.toolbar_state_done_unknown));
 					btnResult.setEnabled(true);
 				} else {
-					btnResult.setText(getContactDisplayName(recognizedContactLookupKey));
+					btnResult.setText(getContactDisplayName(activeLookupKey));
 					btnResult.setEnabled(true);
 				}
 				state = STATE_DONE;
@@ -432,6 +512,14 @@ public class DoodleActivity extends Activity
 				btnRight.setEnabled(true);
 			}
 		} else if (state != STATE_BROWSING && transition == TRANSITION_BROWSE_BUTTON_RIGHT) {
+			if (doodleView.hasCompletedDoodle()) {
+				saveDoodle = doodleView.getDoodle();
+			} else {
+				saveDoodle = null;
+			}
+			if (currentRecognizer != null && !currentRecognizer.isCancelled()) {
+				currentRecognizer.cancel(true);
+			}
 			setBrowsingPosition(0);
 			state = STATE_BROWSING;
 		} else if (state == STATE_BROWSING && transition == TRANSITION_BROWSE_BUTTON_RIGHT) {
@@ -440,6 +528,10 @@ public class DoodleActivity extends Activity
 			setBrowsingPosition(browsePosition - 1);
 			if (browsePosition < 0) {
 				state = STATE_WAITING;
+				if (saveDoodle != null) {
+					doodleView.setDoodle(saveDoodle);
+					doStateTransition(TRANSITION_END_DRAW);
+				}
 			}
 		}
 	}
@@ -454,14 +546,18 @@ public class DoodleActivity extends Activity
 			btnResult.setText(getString(R.string.toolbar_state_waiting));
 			btnResult.setEnabled(false);
 			doodleView.startNewDrawing();
+			activeLookupKey = null;
 		}
 		else
 		{
+			System.out.println("Phone NUMBER: " + getContactPhoneNumber(library.get(newpos).getLookupKey()));
+			
 			btnLeft.setEnabled(true);
 			btnRight.setEnabled(library.size() > browsePosition + 1);
 			btnResult.setText(getContactDisplayName(library.get(browsePosition).getLookupKey()));
 			btnResult.setEnabled(true);
 			doodleView.setDoodle(library.get(browsePosition).getDoodle());
+			activeLookupKey = library.get(browsePosition).getLookupKey();
 		}
 	}
 	

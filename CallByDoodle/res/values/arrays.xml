@@ -13,5 +13,14 @@
         <item>CirclesTheme</item>
         <item>AngleTheme</item>
         <item>AngleDistributionTheme</item>
-	</string-array>    
+	</string-array>
+	<string-array name="contact_popup_menu">
+       <item>Open contact</item>
+       <item>Remove doodle for this contact</item>
+	</string-array>
+	<string-array name="new_entry_popup_menu">
+	   <item>Connect doodle to existing contact</item>
+	   <item>..or first add new contact</item>
+	   <item>This doodle should have been recognized!</item>
+	</string-array>
 </resources>
