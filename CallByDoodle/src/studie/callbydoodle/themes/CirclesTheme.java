@@ -20,7 +20,7 @@ public class CirclesTheme implements DoodleTheme
 	private static final int CIRCLE_COLOR = Color.BLACK;
 	
 	// MotionEvent.getPressure() times this constant to get the drawing radius
-	private final int PRESSURE_TO_RADIUS = 80;
+	private final double PRESSURE_TO_RADIUS = 0.8;
 	
 	private static Bitmap circlesBitmap;
 	private static Paint overlayPaint;
