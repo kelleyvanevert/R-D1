@@ -25,9 +25,4 @@ public class DoodleLibraryEntry implements Serializable
 	{
 		return doodle.clone();
 	}
-	
-	public Specs getSpecs()
-	{
-		return doodle.getSpecs();
-	}
 }

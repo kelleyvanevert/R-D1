@@ -18,7 +18,7 @@ public class Specs implements Serializable
 	public static final double TOTAL_DISTRIBUTION_WEIGHT = 5;
 	public static final double PARTIAL_DISTRIBUTION_WEIGHT = 3;
 	
-	public static final int LIKENESS_THRESHOLD = 60;
+	public static final int LIKENESS_THRESHOLD = 70;
 	
 	private ArrayList<Seg> segs;
 	private AngleDistribution[] distributions;

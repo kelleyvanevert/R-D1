@@ -241,8 +241,14 @@ public class DoodleActivity extends Activity
     		Specs specs = doodleView.getDoodle().getSpecs();
         	ArrayList<String> items = new ArrayList<String>();
         	for (DoodleLibraryEntry entry : library) {
-        		items.add(getContactDisplayName(entry.getLookupKey()) + ": " +
-        				Specs.likeness(specs, entry.getDoodle().getSpecs()) + "/" + Specs.LIKENESS_THRESHOLD);
+        		int likeness = Specs.likeness(specs, entry.getDoodle().getSpecs());
+        		if (likeness >= Specs.LIKENESS_THRESHOLD) {
+        			int score = likeness - Specs.LIKENESS_THRESHOLD;
+        			String scoreStr = (score > 0 ? "+" : "") + score;
+            		items.add(getContactDisplayName(entry.getLookupKey()) + ": " + scoreStr);
+        		} else {
+            		items.add(getContactDisplayName(entry.getLookupKey()) + ": nope.");
+        		}
         	}
         	AlertDialog.Builder builder = new AlertDialog.Builder(this);
         	builder.setTitle("Recognition results");
@@ -362,7 +368,7 @@ public class DoodleActivity extends Activity
 					return null;
 				}
 				
-				int likeness = Specs.likeness(entry.getSpecs(), specs);
+				int likeness = Specs.likeness(entry.getDoodle().getSpecs(), specs);
 				if (likeness >= Specs.LIKENESS_THRESHOLD && likeness >= maxLikeness) {
 					maxLikeness = likeness;
 					lookupKey = entry.getLookupKey();
@@ -437,6 +443,8 @@ public class DoodleActivity extends Activity
 		    			new LibrarySaver().execute(library);
 		    			setBrowsingPosition(-1);
 		    		}
+				} else if (which == 2) {
+					displaySaveEntryModal();
 				}
 			}
 		});

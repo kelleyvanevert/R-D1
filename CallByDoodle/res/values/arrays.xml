@@ -17,6 +17,7 @@
 	<string-array name="contact_popup_menu">
        <item>Open contact</item>
        <item>Remove doodle for this contact</item>
+       <item>No, wait.. Add new doodle!</item>
 	</string-array>
 	<string-array name="new_entry_popup_menu">
 	   <item>Connect doodle to existing contact</item>
