@@ -53,9 +53,11 @@ public class AngleDistribution implements Serializable
 		for (int i = 0; i < s; i++)
 		{
 			result[i] =
+				distribution[(i - 2 + s) % s] / 2 +
 				distribution[(i - 1 + s) % s] +
 				distribution[(i     + s) % s] +
-				distribution[(i + 1 + s) % s];
+				distribution[(i + 1 + s) % s] +
+				distribution[(i + 2 + s) % s] / 2;
 		}
 		
 		return new AngleDistribution(result);

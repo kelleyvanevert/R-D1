@@ -190,6 +190,9 @@ public class DoodleActivity extends Activity
     	case R.id.clear_drawing:
     		doodleView.startNewDrawing();
     		return true;
+    	case R.id.test_recognition:
+    		testRecognition();
+    		return true;
     	default:
     		return super.onOptionsItemSelected(item);
     	}
@@ -230,6 +233,25 @@ public class DoodleActivity extends Activity
 			}
 		});
     	builder.show();
+    }
+    
+    private void testRecognition()
+    {
+    	if (library != null && doodleView.hasCompletedDoodle()) {
+    		Specs specs = doodleView.getDoodle().getSpecs();
+        	ArrayList<String> items = new ArrayList<String>();
+        	for (DoodleLibraryEntry entry : library) {
+        		items.add(getContactDisplayName(entry.getLookupKey()) + ": " +
+        				Specs.likeness(specs, entry.getDoodle().getSpecs()) + "/" + Specs.LIKENESS_THRESHOLD);
+        	}
+        	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        	builder.setTitle("Recognition results");
+        	builder.setItems(items.toArray(new String[] {}), new DialogInterface.OnClickListener() {
+    			@Override
+    			public void onClick(DialogInterface dialog, int which) {}
+    		});
+        	builder.show();
+    	}
     }
     
     private String getContactDisplayName(String lookupKey)
@@ -327,8 +349,10 @@ public class DoodleActivity extends Activity
 				return null;
 			}
 			
-			Doodle doodle = params[0];
-			Specs specs = doodle.getSpecs();
+			Specs specs = params[0].getSpecs();
+			
+			int maxLikeness = 0;
+			String lookupKey = null;
 			
 			// Loop through all entries, check for cancellation,
 			// then try recognition
@@ -338,12 +362,14 @@ public class DoodleActivity extends Activity
 					return null;
 				}
 				
-				if (entry.getSpecs().like(specs)) {
-					return entry.getLookupKey();
+				int likeness = Specs.likeness(entry.getSpecs(), specs);
+				if (likeness >= Specs.LIKENESS_THRESHOLD && likeness >= maxLikeness) {
+					maxLikeness = likeness;
+					lookupKey = entry.getLookupKey();
 				}
 			}
 			
-			return null;
+			return lookupKey;
 		}
 		
 		protected void onPostExecute(String result)

@@ -22,12 +22,13 @@ public final class R {
     public static final class id {
         public static final int btn_left=0x7f080001;
         public static final int btn_right=0x7f080002;
-        public static final int clear_drawing=0x7f080006;
+        public static final int clear_drawing=0x7f080007;
         public static final int doodleview=0x7f080004;
         public static final int goto_settings=0x7f080005;
-        public static final int menu_call_contact=0x7f080007;
-        public static final int menu_text_contact=0x7f080008;
-        public static final int save_settings=0x7f080009;
+        public static final int menu_call_contact=0x7f080008;
+        public static final int menu_text_contact=0x7f080009;
+        public static final int save_settings=0x7f08000a;
+        public static final int test_recognition=0x7f080006;
         public static final int toolbar=0x7f080000;
         public static final int toolbartext=0x7f080003;
     }
@@ -53,6 +54,7 @@ public final class R {
         public static final int menu_goto_settings=0x7f06000a;
         public static final int menu_save_contact=0x7f06000b;
         public static final int menu_save_settings=0x7f06000c;
+        public static final int menu_test_recognition=0x7f060010;
         public static final int menu_text_contact=0x7f06000e;
         /**  Settings 
          */

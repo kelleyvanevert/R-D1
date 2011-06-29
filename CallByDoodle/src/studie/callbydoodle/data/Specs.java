@@ -14,9 +14,11 @@ public class Specs implements Serializable
 	public static final int PIXELIZATION_SIZE = 50;
 	public static final int PIXELIZATION_STROKE_WIDTH = 7;
 	public static final int NUM_DISTINCT_ANGLES = 7;
+
+	public static final double TOTAL_DISTRIBUTION_WEIGHT = 5;
+	public static final double PARTIAL_DISTRIBUTION_WEIGHT = 3;
 	
-	public static final int TOTAL_DISTRIBUTION_SIMILARITY_THRESHOLD = 60;
-	public static final int PARTIAL_DISTRIBUTION_SIMILARITY_THRESHOLD = 60;
+	public static final int LIKENESS_THRESHOLD = 60;
 	
 	private ArrayList<Seg> segs;
 	private AngleDistribution[] distributions;
@@ -96,37 +98,36 @@ public class Specs implements Serializable
 	}
 	
 	// Compare
-	public boolean like(Specs other)
+	public static int likeness(Specs a, Specs b)
 	{
 		StringBuilder logEntry = new StringBuilder("Specs.like() -- ");
 		
+		double likeness = 0.0;
+		double totalWeight = 0.0;
+		
 		int totalSim = AngleDistribution.similarity(
-				this.getPreparedAngleDistribution(TOTAL),
-				other.getPreparedAngleDistribution(TOTAL)
+				a.getPreparedAngleDistribution(TOTAL),
+				b.getPreparedAngleDistribution(TOTAL)
 		);
-		logEntry.append(" Total ["+totalSim+"/"+TOTAL_DISTRIBUTION_SIMILARITY_THRESHOLD+"]");
-		if (totalSim < TOTAL_DISTRIBUTION_SIMILARITY_THRESHOLD) {
-			logEntry.append(" CANCELLED");
-			Log.v("Specs.like()", logEntry.toString());
-			return false;
-		}
+		likeness += totalSim * TOTAL_DISTRIBUTION_WEIGHT;
+		totalWeight += TOTAL_DISTRIBUTION_WEIGHT;
+		logEntry.append(" Total: "+totalSim);
 		
-		for (int i = 1; i < distributions.length; i++) {
+		for (int i = 1; i < 5; i++) {
 			int partialSim = AngleDistribution.similarity(
-					this.getPreparedAngleDistribution(i),
-					other.getPreparedAngleDistribution(i)
+					a.getPreparedAngleDistribution(i),
+					b.getPreparedAngleDistribution(i)
 			);
-			logEntry.append(" Partial #"+i+" ["+partialSim+"/"+PARTIAL_DISTRIBUTION_SIMILARITY_THRESHOLD+"]");
-			if (partialSim < PARTIAL_DISTRIBUTION_SIMILARITY_THRESHOLD) {
-				logEntry.append(" CANCELLED");
-				Log.v("Specs.like()", logEntry.toString());
-				return false;
-			}
+			likeness += partialSim * PARTIAL_DISTRIBUTION_WEIGHT;
+			totalWeight += PARTIAL_DISTRIBUTION_WEIGHT;
+			logEntry.append(", Partial#"+i+": "+partialSim);
 		}
 		
-		logEntry.append(" SUCCESS!");
-		Log.v("Specs.like()", logEntry.toString());
-		return true;
+		int likenessInt = (int)(likeness / totalWeight);
+		logEntry.append(" --> Likeness, weighted: " + likeness);
+		Log.i("Specs.likeness()", logEntry.toString());
+		
+		return likenessInt;
 	}
 	
 	public Specs clone()
