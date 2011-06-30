@@ -1,0 +1,376 @@
+<class-diagram version="1.0.3" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true">  
+  <class id="1" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.DoodleActivity.DoodleLibraryLoader" 
+    project="CallByDoodle" file="/CallByDoodle/src/studie/callbydoodle/DoodleActivity.java" binary="false">    
+    <position x="75" y="99" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="2" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.DoodleActivity" project="CallByDoodle" 
+    file="/CallByDoodle/src/studie/callbydoodle/DoodleActivity.java" binary="false">    
+    <position x="334" y="176" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="3" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.DoodleActivity.Recognizer" 
+    project="CallByDoodle" file="/CallByDoodle/src/studie/callbydoodle/DoodleActivity.java" binary="false">    
+    <position x="47" y="220" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="4" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.DoodleActivity.LibrarySaver" 
+    project="CallByDoodle" file="/CallByDoodle/src/studie/callbydoodle/DoodleActivity.java" binary="false">    
+    <position x="52" y="161" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <interface id="5" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.DoodleView.DoodleViewListener" 
+    project="CallByDoodle" file="/CallByDoodle/src/studie/callbydoodle/DoodleView.java" binary="false">    
+    <position x="622" y="367" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <class id="6" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.DoodleView" project="CallByDoodle" 
+    file="/CallByDoodle/src/studie/callbydoodle/DoodleView.java" binary="false">    
+    <position x="780" y="169" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="7" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.data.DoodleLibrary" 
+    project="CallByDoodle" file="/CallByDoodle/src/studie/callbydoodle/data/DoodleLibrary.java" binary="false">    
+    <position x="138" y="428" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="8" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.data.DoodleLibraryEntry" 
+    project="CallByDoodle" file="/CallByDoodle/src/studie/callbydoodle/data/DoodleLibraryEntry.java" binary="false">    
+    <position x="121" y="565" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="9" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.data.Doodle" project="CallByDoodle" 
+    file="/CallByDoodle/src/studie/callbydoodle/data/Doodle.java" binary="false">    
+    <position x="471" y="591" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="10" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.data.Specs" project="CallByDoodle" 
+    file="/CallByDoodle/src/studie/callbydoodle/data/Specs.java" binary="false">    
+    <position x="800" y="688" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="11" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.data.AngleDistribution" 
+    project="CallByDoodle" file="/CallByDoodle/src/studie/callbydoodle/data/AngleDistribution.java" binary="false">    
+    <position x="790" y="988" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="12" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.data.DoodleSegment" 
+    project="CallByDoodle" file="/CallByDoodle/src/studie/callbydoodle/data/DoodleSegment.java" binary="false">    
+    <position x="448" y="805" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="13" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.data.Vec" project="CallByDoodle" 
+    file="/CallByDoodle/src/studie/callbydoodle/data/Vec.java" binary="false">    
+    <position x="1328" y="723" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="14" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.data.Seg" project="CallByDoodle" 
+    file="/CallByDoodle/src/studie/callbydoodle/data/Seg.java" binary="false">    
+    <position x="1070" y="862" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <interface id="15" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.themes.DoodleTheme" 
+    project="CallByDoodle" file="/CallByDoodle/src/studie/callbydoodle/themes/DoodleTheme.java" binary="false">    
+    <position x="1434" y="78" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <class id="16" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.themes.AngleDistributionTheme" 
+    project="CallByDoodle" file="/CallByDoodle/src/studie/callbydoodle/themes/AngleDistributionTheme.java" 
+    binary="false">    
+    <position x="1934" y="278" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="17" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.themes.AngleTheme" 
+    project="CallByDoodle" file="/CallByDoodle/src/studie/callbydoodle/themes/AngleTheme.java" binary="false">    
+    <position x="1916" y="524" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="18" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.themes.CirclesTheme" 
+    project="CallByDoodle" file="/CallByDoodle/src/studie/callbydoodle/themes/CirclesTheme.java" binary="false">    
+    <position x="1920" y="658" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="19" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.themes.DefaultTheme" 
+    project="CallByDoodle" file="/CallByDoodle/src/studie/callbydoodle/themes/DefaultTheme.java" binary="false">    
+    <position x="1900" y="120" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="20" corner="BOTTOM_RIGHT" language="java" name="studie.callbydoodle.themes.ColourTheme" 
+    project="CallByDoodle" file="/CallByDoodle/src/studie/callbydoodle/themes/ColourTheme.java" binary="false">    
+    <position x="1908" y="390" width="-1" height="-1"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false"/>      
+      <operations public="true" package="true" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <association>    
+    <end type="SOURCE" nodeId="12" navigable="false">      
+      <attribute name="vecStart"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" nodeId="13" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting>    
+    <end type="SOURCE" nodeId="2"/>    
+    <end type="TARGET" nodeId="3"/>  
+  </nesting>  
+  <association>    
+    <end type="SOURCE" nodeId="8" navigable="false">      
+      <attribute name="doodle"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" nodeId="9" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization>    
+    <end type="SOURCE" nodeId="20"/>    
+    <end type="TARGET" nodeId="15"/>  
+  </realization>  
+  <association>    
+    <bendpoint x="724" y="430"/>    
+    <end type="SOURCE" nodeId="6" navigable="false">      
+      <attribute name="doodle"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" nodeId="9" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association>    
+    <end type="SOURCE" nodeId="6" navigable="false">      
+      <attribute name="theme"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" nodeId="15" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association>    
+    <bendpoint x="304" y="438"/>    
+    <end type="SOURCE" nodeId="2" navigable="false">      
+      <attribute name="libraryLoadPendingDoodleRecognition"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" nodeId="9" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency>    
+    <end type="SOURCE" nodeId="1"/>    
+    <end type="TARGET" nodeId="7"/>  
+  </dependency>  
+  <realization>    
+    <end type="SOURCE" nodeId="17"/>    
+    <end type="TARGET" nodeId="15"/>  
+  </realization>  
+  <association>    
+    <end type="SOURCE" nodeId="2" navigable="false">      
+      <attribute name="library"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" nodeId="7" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association>    
+    <end type="SOURCE" nodeId="10" navigable="false">      
+      <attribute name="segs"/>      
+      <multiplicity minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" nodeId="14" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization>    
+    <end type="SOURCE" nodeId="19"/>    
+    <end type="TARGET" nodeId="15"/>  
+  </realization>  
+  <association>    
+    <end type="SOURCE" nodeId="6" navigable="false">      
+      <attribute name="lastVec"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" nodeId="13" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization>    
+    <end type="SOURCE" nodeId="18"/>    
+    <end type="TARGET" nodeId="15"/>  
+  </realization>  
+  <association>    
+    <end type="SOURCE" nodeId="14" navigable="false">      
+      <attribute name="start"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" nodeId="13" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization>    
+    <end type="SOURCE" nodeId="16"/>    
+    <end type="TARGET" nodeId="19"/>  
+  </generalization>  
+  <nesting>    
+    <end type="SOURCE" nodeId="2"/>    
+    <end type="TARGET" nodeId="4"/>  
+  </nesting>  
+  <association>    
+    <end type="SOURCE" nodeId="9" navigable="false">      
+      <attribute name="specs"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" nodeId="10" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization>    
+    <end type="SOURCE" nodeId="2"/>    
+    <end type="TARGET" nodeId="5"/>  
+  </realization>  
+  <association>    
+    <end type="SOURCE" nodeId="6" navigable="false">      
+      <attribute name="currentVec"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" nodeId="13" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association>    
+    <end type="SOURCE" nodeId="2" navigable="false">      
+      <attribute name="doodleView"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" nodeId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association>    
+    <end type="SOURCE" nodeId="10" navigable="false">      
+      <attribute name="owner"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" nodeId="9" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association>    
+    <end type="SOURCE" nodeId="12" navigable="false">      
+      <attribute name="vecEnd"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" nodeId="13" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency>    
+    <end type="SOURCE" nodeId="4"/>    
+    <end type="TARGET" nodeId="7"/>  
+  </dependency>  
+  <association>    
+    <end type="SOURCE" nodeId="10" navigable="false">      
+      <attribute name="distributions"/>      
+      <multiplicity minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" nodeId="11" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting>    
+    <end type="SOURCE" nodeId="2"/>    
+    <end type="TARGET" nodeId="1"/>  
+  </nesting>  
+  <nesting>    
+    <end type="SOURCE" nodeId="6"/>    
+    <end type="TARGET" nodeId="5"/>  
+  </nesting>  
+  <association>    
+    <end type="SOURCE" nodeId="12" navigable="false">      
+      <attribute name="DUMMY"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" nodeId="12" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association>    
+    <end type="SOURCE" nodeId="6" navigable="false">      
+      <attribute name="listener"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" nodeId="5" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association>    
+    <bendpoint x="472" y="428"/>    
+    <end type="SOURCE" nodeId="2" navigable="false">      
+      <attribute name="saveDoodle"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" nodeId="9" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency>    
+    <end type="SOURCE" nodeId="7"/>    
+    <end type="TARGET" nodeId="8"/>  
+  </dependency>  
+  <association>    
+    <end type="SOURCE" nodeId="9" navigable="false">      
+      <attribute name="segments"/>      
+      <multiplicity minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" nodeId="12" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <classifier-display autosize="true" package="true" initial-value="false" signature="true" visibility="true">    
+    <attributes public="true" package="true" protected="false" private="false"/>    
+    <operations public="true" package="true" protected="false" private="false"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>
